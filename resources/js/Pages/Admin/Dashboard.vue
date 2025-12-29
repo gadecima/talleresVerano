@@ -69,6 +69,25 @@
                 </template>
             </q-table>
 
+            <!-- Card de acceso rápido a Talleres -->
+            <q-card class="q-mb-lg">
+                <q-card-section>
+                    <div class="row items-center">
+                        <q-icon name="school" size="48px" color="primary" class="q-mr-md" />
+                        <div class="col">
+                            <div class="text-h6">Gestión de Talleres</div>
+                            <div class="text-subtitle2 text-grey">Administra los talleres del sistema</div>
+                        </div>
+                        <q-btn
+                            color="primary"
+                            label="Ver Talleres"
+                            icon-right="arrow_forward"
+                            href="/admin/section2"
+                        />
+                    </div>
+                </q-card-section>
+            </q-card>
+
             <!-- Modal para Crear/Editar Usuario -->
             <q-dialog v-model="showUserModal">
                 <q-card style="min-width: 400px">

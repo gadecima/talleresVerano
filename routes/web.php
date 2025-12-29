@@ -62,6 +62,12 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::get('/section2', function () {
         return Inertia::render('Admin/Section2');
     })->name('section2');
+
+    // API para gestión de talleres
+    Route::get('/talleres', [\App\Http\Controllers\Admin\TallerController::class, 'index'])->name('talleres.index');
+    Route::post('/talleres', [\App\Http\Controllers\Admin\TallerController::class, 'store'])->name('talleres.store');
+    Route::put('/talleres/{taller}', [\App\Http\Controllers\Admin\TallerController::class, 'update'])->name('talleres.update');
+    Route::delete('/talleres/{taller}', [\App\Http\Controllers\Admin\TallerController::class, 'destroy'])->name('talleres.destroy');
 });
 
 // Rutas API para gestión de usuarios (solo admin)
