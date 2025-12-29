@@ -110,37 +110,16 @@ phpMyAdmin es una herramienta web gratuita para administrar bases de datos MySQL
    - Extrae el contenido
 
 3. **Mover a Laragon**:
-   - Abre la carpeta extraída (tendrá un nombre como `phpMyAdmin-5.2.1-all-languages`)
+   - Abre la carpeta extraída (tendrá un nombre como `phpMyAdmin-5.x.x-all-languages`)
    - **Renombra** la carpeta a simplemente: `phpmyadmin` (todo en minúsculas, sin guiones ni espacios)
-   - Copia o mueve esta carpeta `phpmyadmin` a: `C:\laragon\www\`
-   - La ruta final debe ser: `C:\laragon\www\phpmyadmin\`
+   - Copia o mueve esta carpeta `phpmyadmin` a: `laragon\etc\apps\`
+   - La ruta final debe ser: `C:\laragon\etc\apps\phpmyadmin\`
 
-### Paso 3: Configurar phpMyAdmin
-
-1. **Crear archivo de configuración**:
-   - Navega a: `C:\laragon\www\phpmyadmin\`
-   - Busca el archivo llamado `config.sample.inc.php`
-   - Haz clic derecho → **Copiar**
-   - Pega en la misma carpeta
-   - Renombra la copia a: `config.inc.php` (sin el `.sample`)
-
-2. **Editar el archivo de configuración**:
-   - Abre `config.inc.php` con un editor de texto (Notepad++, VS Code, o Bloc de notas)
-   - Busca la línea que dice:
-     ```php
-     $cfg['blowfish_secret'] = '';
-     ```
-   - Genera una clave aleatoria de 32 caracteres. Puedes usar cualquier combinación de letras, números y símbolos. Por ejemplo:
-     ```php
-     $cfg['blowfish_secret'] = 'tu_clave_secreta_aqui_32chars';
-     ```
-   - Guarda y cierra el archivo
-
-### Paso 4: Verificar la Instalación
+### Paso 3: Verificar la Instalación
 
 1. **Asegúrate de que Laragon esté corriendo**:
    - Abre Laragon
-   - Haz clic en **Start All**
+   - Haz clic en **Start All** o **"iniciar todo"**
    - Espera a que Apache y MySQL tengan indicadores verdes
 
 2. **Abrir phpMyAdmin**:
@@ -159,26 +138,10 @@ phpMyAdmin es una herramienta web gratuita para administrar bases de datos MySQL
 
 ### Solución de Problemas de phpMyAdmin
 
-**Problema: Error "El archivo de configuración necesita una frase de contraseña secreta"**
-
-**Solución**: 
-- Edita `C:\laragon\www\phpmyadmin\config.inc.php`
-- Asegúrate de que `$cfg['blowfish_secret']` tenga un valor (cualquier texto de al menos 32 caracteres)
-
-**Problema: "Cannot connect: invalid settings" o error de conexión**
-
-**Solución**:
-1. Verifica que MySQL esté corriendo en Laragon (indicador verde)
-2. Edita `config.inc.php` y verifica estas líneas:
-   ```php
-   $cfg['Servers'][$i]['host'] = '127.0.0.1';
-   $cfg['Servers'][$i]['port'] = '3306';
-   ```
-
 **Problema: Página no encontrada (404) al abrir localhost/phpmyadmin**
 
 **Solución**:
-- Verifica que la carpeta esté en: `C:\laragon\www\phpmyadmin\` (todo en minúsculas)
+- Verifica que la carpeta esté en: `C:\laragon\etc\apps\phpmyadmin\` (todo en minúsculas)
 - Verifica que Apache esté corriendo en Laragon
 - Intenta reiniciar Apache: En Laragon → Detener Apache → Iniciar Apache
 
@@ -209,12 +172,11 @@ Si tienes Git instalado (viene incluido con Laragon), esta es la mejor opción:
    
    git clone https://github.com/gadecima/talleresVerano.git
    
-   
    Verás mensajes indicando que el proyecto se está descargando. Esto puede tardar 1-3 minutos dependiendo de tu conexión a internet.
 
 4. **Verifica que se descargó correctamente**:
    - Deberías ver una nueva carpeta `talleresVerano` en `C:\laragon\www\`
-   - La carpeta debe contener archivos como `artisan`, `composer.json`, `package.json`, etc.
+   - La carpeta debe contener archivos como `artisan`, `composer.json`, `package.json`, `.env`  etc.
 
 ### Opción 2: Descargar como ZIP
 
@@ -253,9 +215,9 @@ Independientemente del método que uses, verifica que:
 
 En la terminal que acabas de abrir, ejecuta:
 
-
+```bash
 composer install
-
+```
 
 Esto descargará todas las librerías de PHP necesarias. **Puede tardar 2-5 minutos**.
 
@@ -263,9 +225,9 @@ Esto descargará todas las librerías de PHP necesarias. **Puede tardar 2-5 minu
 
 En la misma terminal, ejecuta:
 
-
+```bash
 npm install
-
+```
 
 Esto descargará Vue.js, Quasar, Vite y otras herramientas frontend. **Puede tardar 3-7 minutos**.
 
@@ -288,7 +250,8 @@ DB_USERNAME=root
 DB_PASSWORD=
 
 
-**Importante**: 
+**Importante**:
+- Esas líneas estarán comentadas con #, quitarlo. 
 - `DB_DATABASE`: Este será el nombre de tu base de datos
 - `DB_USERNAME`: Por defecto en Laragon es `root`
 - `DB_PASSWORD`: Por defecto en Laragon está **vacío** (déjalo así)
@@ -299,9 +262,9 @@ DB_PASSWORD=
 
 En la terminal, ejecuta:
 
-
+```bash
 php artisan key:generate
-
+```
 
 Verás un mensaje: "Application key set successfully."
 
@@ -312,9 +275,7 @@ Verás un mensaje: "Application key set successfully."
 1. **Iniciar Laragon**: Asegúrate de que Laragon esté ejecutándose (haz clic en **Start All**)
 
 2. **Abrir phpMyAdmin**:
-   - En Laragon, haz clic en el menú (esquina superior derecha)
-   - Selecciona **www** → **phpMyAdmin**
-   - O abre tu navegador y ve a: `http://localhost/phpmyadmin`
+   - Abre tu navegador y ve a: `http://localhost/phpmyadmin`
 
 3. **Iniciar sesión**:
    - Usuario: `root`
@@ -334,15 +295,14 @@ Verás un mensaje: "Application key set successfully."
    ```bash
    mysql -u root -e "CREATE DATABASE talleres_verano CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
    ```
-   
 
 ### Paso 7: Ejecutar Migraciones y Seeders
 
 En la terminal, ejecuta:
 
-
+```bash
 php artisan migrate --seed
-
+```
 
 Este comando:
 - Creará todas las tablas en la base de datos (users, roles, talleres, inscripciones, etc.)
@@ -361,8 +321,10 @@ Para que el proyecto funcione correctamente, necesitas **DOS terminales** ejecut
 1. Abre una terminal en el proyecto (clic derecho en Laragon → Terminal)
 2. Ejecuta:
    
+   ```bash
    php artisan serve
-   
+   ```
+
 3. Verás un mensaje: `Laravel development server started: http://127.0.0.1:8000`
 4. **¡NO CIERRES ESTA TERMINAL!** Debe quedar ejecutándose
 
@@ -371,12 +333,15 @@ Para que el proyecto funcione correctamente, necesitas **DOS terminales** ejecut
 1. Abre una **segunda terminal** en el proyecto:
    - En Laragon, haz clic derecho nuevamente y selecciona **Terminal**
 2. Ejecuta:
-   
+
+   ```bash
    npm run dev
+   ```
    
 3. Verás mensajes de compilación de Vite
 4. Al final verás: `VITE ready in xxx ms`
 5. **¡NO CIERRES ESTA TERMINAL!** Debe quedar ejecutándose
+
 
 ### Abrir la Aplicación
 
@@ -592,8 +557,6 @@ npm run dev
 		php artisan config:clear
 		php artisan cache:clear
 		
-
-
 Ahora personaliza:
 - Cambia layouts en `resources/js/Layouts/`
 - Crea páginas en `resources/js/Pages/`
