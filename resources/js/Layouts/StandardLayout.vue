@@ -40,16 +40,16 @@
 
                 <q-item clickable tag="a" href="/standard/section1" active-class="bg-blue-1">
                     <q-item-section avatar>
-                        <q-icon name="folder" />
+                        <q-icon name="person_add" />
                     </q-item-section>
-                    <q-item-section>Sección 1</q-item-section>
+                    <q-item-section>Registrar Cursante</q-item-section>
                 </q-item>
 
                 <q-item clickable tag="a" href="/standard/section2" active-class="bg-blue-1">
                     <q-item-section avatar>
-                        <q-icon name="folder" />
+                        <q-icon name="groups" />
                     </q-item-section>
-                    <q-item-section>Sección 2</q-item-section>
+                    <q-item-section>Ver cursantes registrados</q-item-section>
                 </q-item>
             </q-list>
         </q-drawer>
@@ -66,7 +66,7 @@ import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 
 const drawerOpen = ref(false);
-const appName = 'miStarterStack';
+const appName = 'TALLERES DE VERANO - CIIDEPT';
 
 const toggleDrawer = () => {
     drawerOpen.value = !drawerOpen.value;
