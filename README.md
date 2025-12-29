@@ -9,11 +9,12 @@ Sistema construido con **Laravel 12**, **Vue 3** e **Inertia.js** para la gesti�
 1. [Requisitos del Sistema](#-requisitos-del-sistema)
 2. [Instalación de Laragon 6](#-instalación-de-laragon-6)
 3. [Instalación de Node.js](#-instalación-de-nodejs)
-4. [Descargar el Proyecto desde GitHub](#-descargar-el-proyecto-desde-github)
-5. [Configuración del Proyecto](#-configuración-del-proyecto)
-6. [Ejecutar el Proyecto](#-ejecutar-el-proyecto)
-7. [Solución de Problemas](#-solución-de-problemas)
-8. [Usuarios de Prueba](#-usuarios-de-prueba)
+4. [Instalación y Configuración de phpMyAdmin](#-instalación-y-configuración-de-phpmyadmin)
+5. [Descargar el Proyecto desde GitHub](#-descargar-el-proyecto-desde-github)
+6. [Configuración del Proyecto](#-configuración-del-proyecto)
+7. [Ejecutar el Proyecto](#-ejecutar-el-proyecto)
+8. [Solución de Problemas](#-solución-de-problemas)
+9. [Usuarios de Prueba](#-usuarios-de-prueba)
 
 ---
 
@@ -87,9 +88,109 @@ Node.js es necesario para compilar los archivos frontend (Vue.js, CSS).
 
 ---
 
+## �️ Instalación y Configuración de phpMyAdmin
+
+phpMyAdmin es una herramienta web gratuita para administrar bases de datos MySQL de forma visual. En Laragon 6, necesitas instalarla manualmente.
+
+### Paso 1: Descargar phpMyAdmin
+
+1. Ve a la página oficial: [https://www.phpmyadmin.net/downloads/](https://www.phpmyadmin.net/downloads/)
+2. Descarga la versión **más reciente** (busca el botón "Download" en la versión estable)
+3. Descarga el archivo **ZIP** (no el instalador)
+4. El archivo se llamará algo como: `phpMyAdmin-5.2.1-all-languages.zip`
+
+### Paso 2: Instalar phpMyAdmin en Laragon 6
+
+1. **Localiza el archivo descargado**:
+   - Busca el archivo ZIP en tu carpeta de Descargas
+
+2. **Extraer phpMyAdmin**:
+   - Haz clic derecho en el archivo ZIP
+   - Selecciona **"Extraer todo..."** o usa WinRAR/7-Zip
+   - Extrae el contenido
+
+3. **Mover a Laragon**:
+   - Abre la carpeta extraída (tendrá un nombre como `phpMyAdmin-5.2.1-all-languages`)
+   - **Renombra** la carpeta a simplemente: `phpmyadmin` (todo en minúsculas, sin guiones ni espacios)
+   - Copia o mueve esta carpeta `phpmyadmin` a: `C:\laragon\www\`
+   - La ruta final debe ser: `C:\laragon\www\phpmyadmin\`
+
+### Paso 3: Configurar phpMyAdmin
+
+1. **Crear archivo de configuración**:
+   - Navega a: `C:\laragon\www\phpmyadmin\`
+   - Busca el archivo llamado `config.sample.inc.php`
+   - Haz clic derecho → **Copiar**
+   - Pega en la misma carpeta
+   - Renombra la copia a: `config.inc.php` (sin el `.sample`)
+
+2. **Editar el archivo de configuración**:
+   - Abre `config.inc.php` con un editor de texto (Notepad++, VS Code, o Bloc de notas)
+   - Busca la línea que dice:
+     ```php
+     $cfg['blowfish_secret'] = '';
+     ```
+   - Genera una clave aleatoria de 32 caracteres. Puedes usar cualquier combinación de letras, números y símbolos. Por ejemplo:
+     ```php
+     $cfg['blowfish_secret'] = 'tu_clave_secreta_aqui_32chars';
+     ```
+   - Guarda y cierra el archivo
+
+### Paso 4: Verificar la Instalación
+
+1. **Asegúrate de que Laragon esté corriendo**:
+   - Abre Laragon
+   - Haz clic en **Start All**
+   - Espera a que Apache y MySQL tengan indicadores verdes
+
+2. **Abrir phpMyAdmin**:
+   - Abre tu navegador web (Chrome, Firefox, Edge)
+   - Ve a: `http://localhost/phpmyadmin`
+   - Deberías ver la pantalla de inicio de sesión de phpMyAdmin
+
+3. **Iniciar sesión**:
+   - **Usuario**: `root`
+   - **Contraseña**: (déjala en blanco, no escribas nada)
+   - Haz clic en **"Continuar"** o **"Go"**
+
+4. **Verificar acceso**:
+   - Si todo está bien, verás el panel principal de phpMyAdmin
+   - En el panel izquierdo verás las bases de datos existentes
+
+### Solución de Problemas de phpMyAdmin
+
+**Problema: Error "El archivo de configuración necesita una frase de contraseña secreta"**
+
+**Solución**: 
+- Edita `C:\laragon\www\phpmyadmin\config.inc.php`
+- Asegúrate de que `$cfg['blowfish_secret']` tenga un valor (cualquier texto de al menos 32 caracteres)
+
+**Problema: "Cannot connect: invalid settings" o error de conexión**
+
+**Solución**:
+1. Verifica que MySQL esté corriendo en Laragon (indicador verde)
+2. Edita `config.inc.php` y verifica estas líneas:
+   ```php
+   $cfg['Servers'][$i]['host'] = '127.0.0.1';
+   $cfg['Servers'][$i]['port'] = '3306';
+   ```
+
+**Problema: Página no encontrada (404) al abrir localhost/phpmyadmin**
+
+**Solución**:
+- Verifica que la carpeta esté en: `C:\laragon\www\phpmyadmin\` (todo en minúsculas)
+- Verifica que Apache esté corriendo en Laragon
+- Intenta reiniciar Apache: En Laragon → Detener Apache → Iniciar Apache
+
+**Problema: Acceso denegado para el usuario 'root'**
+
+**Solución**: En Laragon 6, por defecto MySQL no tiene contraseña para root. Deja el campo de contraseña vacío.
+
+---
+
 ## 📥 Descargar el Proyecto desde GitHub
 
-Ahora que tienes Laragon y Node.js instalados, es momento de descargar el proyecto.
+Ahora que tienes Laragon, Node.js y phpMyAdmin instalados, es momento de descargar el proyecto.
 
 ### Opción 1: Clonar con Git (Recomendado)
 

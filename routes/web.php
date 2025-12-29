@@ -68,6 +68,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::post('/talleres', [\App\Http\Controllers\Admin\TallerController::class, 'store'])->name('talleres.store');
     Route::put('/talleres/{taller}', [\App\Http\Controllers\Admin\TallerController::class, 'update'])->name('talleres.update');
     Route::delete('/talleres/{taller}', [\App\Http\Controllers\Admin\TallerController::class, 'destroy'])->name('talleres.destroy');
+
+    // API para consultar inscripciones
+    Route::get('/inscripciones', [\App\Http\Controllers\Admin\InscripcionController::class, 'index'])->name('inscripciones.index');
 });
 
 // Rutas API para gestión de usuarios (solo admin)

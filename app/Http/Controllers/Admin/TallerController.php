@@ -24,7 +24,7 @@ class TallerController extends Controller
             $sortBy = 'created_at';
         }
 
-        $query = Taller::query()->orderBy($sortBy, $sortDesc ? 'desc' : 'asc');
+        $query = Taller::with('dias')->orderBy($sortBy, $sortDesc ? 'desc' : 'asc');
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -47,17 +47,24 @@ class TallerController extends Controller
         $data = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'responsable' => ['required', 'string', 'max:255'],
-            'orientado' => ['required', 'string', 'max:255'],
+            'orientado' => ['required', Rule::in(['inicial', 'primario', 'secundario'])],
+            'dias' => ['required', 'array', 'min:1'],
+            'dias.*' => ['required', Rule::in(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'])],
         ]);
 
         // Normalizar datos: cambio a mayusculas la primera letra de cada palabra
         $data['nombre'] = ucwords(strtolower(trim($data['nombre'])));
         $data['responsable'] = ucwords(strtolower(trim($data['responsable'])));
-        $data['orientado'] = ucwords(strtolower(trim($data['orientado'])));
+        $data['orientado'] = strtolower(trim($data['orientado']));
 
         $taller = Taller::create($data);
 
-        return response()->json($taller, 201);
+        // Crear los días del taller
+        foreach ($data['dias'] as $dia) {
+            $taller->dias()->create(['dia_semana' => $dia]);
+        }
+
+        return response()->json($taller->load('dias'), 201);
     }
 
     /**
@@ -68,17 +75,25 @@ class TallerController extends Controller
         $data = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'responsable' => ['required', 'string', 'max:255'],
-            'orientado' => ['required', 'string', 'max:255'],
+            'orientado' => ['required', Rule::in(['inicial', 'primario', 'secundario'])],
+            'dias' => ['required', 'array', 'min:1'],
+            'dias.*' => ['required', Rule::in(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'])],
         ]);
 
         // Normalizar datos
         $data['nombre'] = ucwords(strtolower(trim($data['nombre'])));
         $data['responsable'] = ucwords(strtolower(trim($data['responsable'])));
-        $data['orientado'] = ucwords(strtolower(trim($data['orientado'])));
+        $data['orientado'] = strtolower(trim($data['orientado']));
 
         $taller->update($data);
 
-        return response()->json($taller);
+        // Actualizar los días: eliminar los existentes y crear los nuevos
+        $taller->dias()->delete();
+        foreach ($data['dias'] as $dia) {
+            $taller->dias()->create(['dia_semana' => $dia]);
+        }
+
+        return response()->json($taller->load('dias'));
     }
 
     /**

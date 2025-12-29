@@ -79,8 +79,28 @@
                                         :rules="[valReq]" />
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <q-input v-model="formCrear.orientado" label="Orientado a" outlined
-                                        :rules="[valReq]" />
+                                    <q-select
+                                        v-model="formCrear.orientado"
+                                        :options="orientadoOptions"
+                                        emit-value
+                                        map-options
+                                        label="Orientado a"
+                                        outlined
+                                        :rules="[valReq]"
+                                    />
+                                </div>
+                                <div class="col-12">
+                                    <q-select
+                                        v-model="formCrear.dias"
+                                        :options="diasOptions"
+                                        emit-value
+                                        map-options
+                                        multiple
+                                        label="Días de la semana"
+                                        outlined
+                                        :rules="[valReqArray]"
+                                        hint="Selecciona uno o más días"
+                                    />
                                 </div>
                             </div>
 
@@ -115,8 +135,28 @@
                                         :rules="[valReq]" />
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <q-input v-model="formEditar.orientado" label="Orientado a" outlined
-                                        :rules="[valReq]" />
+                                    <q-select
+                                        v-model="formEditar.orientado"
+                                        :options="orientadoOptions"
+                                        emit-value
+                                        map-options
+                                        label="Orientado a"
+                                        outlined
+                                        :rules="[valReq]"
+                                    />
+                                </div>
+                                <div class="col-12">
+                                    <q-select
+                                        v-model="formEditar.dias"
+                                        :options="diasOptions"
+                                        emit-value
+                                        map-options
+                                        multiple
+                                        label="Días de la semana"
+                                        outlined
+                                        :rules="[valReqArray]"
+                                        hint="Selecciona uno o más días"
+                                    />
                                 </div>
                             </div>
 
@@ -177,8 +217,24 @@ const pagination = ref({
 const columns = [
     { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left', sortable: true },
     { name: 'responsable', label: 'Responsable', field: 'responsable', align: 'left', sortable: true },
-    { name: 'orientado', label: 'Orientado a', field: 'orientado', align: 'left', sortable: true },
+    { name: 'orientado', label: 'Orientado a', field: 'orientado', align: 'left', sortable: true, format: (val) => val ? (val.charAt(0).toUpperCase() + val.slice(1)) : '' },
     { name: 'actions', label: 'Acciones', field: 'actions', align: 'center' },
+];
+
+const orientadoOptions = [
+    { label: 'Inicial', value: 'inicial' },
+    { label: 'Primario', value: 'primario' },
+    { label: 'Secundario', value: 'secundario' },
+];
+
+const diasOptions = [
+    { label: 'Lunes', value: 'lunes' },
+    { label: 'Martes', value: 'martes' },
+    { label: 'Miércoles', value: 'miercoles' },
+    { label: 'Jueves', value: 'jueves' },
+    { label: 'Viernes', value: 'viernes' },
+    { label: 'Sábado', value: 'sabado' },
+    { label: 'Domingo', value: 'domingo' },
 ];
 
 const dialogCrear = ref(false);
@@ -189,18 +245,24 @@ const tallerEliminar = ref(null);
 const formCrear = reactive({
     nombre: '',
     responsable: '',
-    orientado: '',
+    orientado: null,
+    dias: [],
 });
 
 const formEditar = reactive({
     id: null,
     nombre: '',
     responsable: '',
-    orientado: '',
+    orientado: null,
+    dias: [],
 });
 
 function valReq(v) {
     return (!!v || v === 0) || 'Campo obligatorio';
+}
+
+function valReqArray(v) {
+    return (v && v.length > 0) || 'Selecciona al menos un día';
 }
 
 function buscarConDebounce() {
@@ -251,6 +313,7 @@ function abrirDialogoCrear() {
     formCrear.nombre = '';
     formCrear.responsable = '';
     formCrear.orientado = '';
+    formCrear.dias = [];
     dialogCrear.value = true;
 }
 
@@ -282,6 +345,7 @@ function editarTaller(taller) {
     formEditar.nombre = taller.nombre;
     formEditar.responsable = taller.responsable;
     formEditar.orientado = taller.orientado;
+    formEditar.dias = taller.dias ? taller.dias.map(d => d.dia_semana) : [];
     dialogEditar.value = true;
 }
 

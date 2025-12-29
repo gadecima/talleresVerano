@@ -5,86 +5,87 @@
                 <div class="col">
                     <h4 class="q-my-none">Dashboard Administrador</h4>
                 </div>
-                <div class="col-auto">
-                    <q-btn
-                        color="primary"
-                        label="Agregar Usuario"
-                        icon="add"
-                        @click="showUserModal = true"
-                    />
+            </div>
+
+            <!-- Cards de acceso rápido -->
+            <div class="row q-col-gutter-md q-mb-lg">
+                <!-- Card de Usuarios -->
+                <div class="col-12 col-md-6">
+                    <q-card>
+                        <q-card-section>
+                            <div class="row items-center">
+                                <q-icon name="people" size="48px" color="primary" class="q-mr-md" />
+                                <div class="col">
+                                    <div class="text-h6">Gestión de Usuarios</div>
+                                    <div class="text-subtitle2 text-grey">Administra usuarios y roles</div>
+                                </div>
+                                <q-btn
+                                    color="primary"
+                                    label="Ver Usuarios"
+                                    icon-right="arrow_forward"
+                                    href="/admin/section1"
+                                />
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                </div>
+
+                <!-- Card de Talleres -->
+                <div class="col-12 col-md-6">
+                    <q-card>
+                        <q-card-section>
+                            <div class="row items-center">
+                                <q-icon name="school" size="48px" color="primary" class="q-mr-md" />
+                                <div class="col">
+                                    <div class="text-h6">Gestión de Talleres</div>
+                                    <div class="text-subtitle2 text-grey">Administra los talleres del sistema</div>
+                                </div>
+                                <q-btn
+                                    color="primary"
+                                    label="Ver Talleres"
+                                    icon-right="arrow_forward"
+                                    href="/admin/section2"
+                                />
+                            </div>
+                        </q-card-section>
+                    </q-card>
                 </div>
             </div>
 
-            <!-- Tabla de Usuarios -->
-            <q-table
-                flat
-                bordered
-                title="Usuarios Registrados"
-                :rows="usersList"
-                :columns="columns"
-                row-key="id"
-                class="q-mb-lg"
-            >
-                <template v-slot:body-cell-actions="props">
-                    <q-td :props="props">
-                        <q-btn
-                            flat
-                            dense
-                            round
-                            icon="edit"
-                            @click="editUser(props.row)"
-                            color="primary"
-                            title="Editar"
-                        />
-                        <q-btn-dropdown
-                            flat
-                            dense
-                            round
-                            icon="security"
-                            color="info"
-                            title="Cambiar rol"
-                        >
-                            <q-list>
-                                <q-item
-                                    v-for="role in rolesList"
-                                    :key="role.id"
-                                    clickable
-                                    v-close-popup
-                                    @click="cambiarRol(props.row, role.id)"
-                                >
-                                    <q-item-section>{{ role.name }}</q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-btn-dropdown>
-                        <q-btn
-                            flat
-                            dense
-                            round
-                            icon="delete"
-                            @click="deleteUser(props.row.id)"
-                            color="negative"
-                            title="Eliminar"
-                        />
-                    </q-td>
-                </template>
-            </q-table>
-
-            <!-- Card de acceso rápido a Talleres -->
-            <q-card class="q-mb-lg">
+            <!-- Tabla de Histórico de Inscripciones -->
+            <q-card>
                 <q-card-section>
-                    <div class="row items-center">
-                        <q-icon name="school" size="48px" color="primary" class="q-mr-md" />
-                        <div class="col">
-                            <div class="text-h6">Gestión de Talleres</div>
-                            <div class="text-subtitle2 text-grey">Administra los talleres del sistema</div>
+                    <div class="row items-center q-mb-md">
+                        <div class="col-12 col-md-6">
+                            <div class="text-h6 q-mb-sm">Histórico de Inscripciones</div>
+                            <q-input v-model="searchInscripciones" label="Buscar por cursante o taller" outlined dense clearable
+                                @update:model-value="buscarInscripcionesConDebounce">
+                                <template v-slot:prepend>
+                                    <q-icon name="search" />
+                                </template>
+                            </q-input>
                         </div>
-                        <q-btn
-                            color="primary"
-                            label="Ver Talleres"
-                            icon-right="arrow_forward"
-                            href="/admin/section2"
-                        />
+                        <div class="col-auto q-ml-auto">
+                            <q-btn flat icon="refresh" label="Actualizar" @click="cargarInscripciones" :loading="loadingInscripciones" />
+                        </div>
                     </div>
+
+                    <q-table
+                        :rows="inscripciones"
+                        :columns="inscripcionesColumns"
+                        row-key="id"
+                        v-model:pagination="inscripcionesPagination"
+                        @request="onRequestInscripciones"
+                        :loading="loadingInscripciones"
+                        flat
+                        bordered
+                    >
+                        <template v-slot:body-cell-fecha="props">
+                            <q-td :props="props">
+                                {{ new Date(props.row.fecha).toLocaleDateString('es-ES') }}
+                            </q-td>
+                        </template>
+                    </q-table>
                 </q-card-section>
             </q-card>
 
@@ -146,7 +147,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import AdminLayout from '../../Layouts/AdminLayout.vue';
 
@@ -161,6 +162,28 @@ const $q = useQuasar();
 // Refs locales que se inicializan con los props
 const usersList = ref(props.users || []);
 const rolesList = ref(props.roles || []);
+
+// Refs para inscripciones
+const inscripciones = ref([]);
+const loadingInscripciones = ref(false);
+const searchInscripciones = ref('');
+let debounceTimerInscripciones = null;
+
+const inscripcionesPagination = ref({
+    sortBy: 'fecha',
+    descending: true,
+    page: 1,
+    rowsPerPage: 10,
+    rowsNumber: 0,
+});
+
+const inscripcionesColumns = [
+    { name: 'cursante', label: 'Cursante', field: row => row.cursante?.nombre_apellido, align: 'left', sortable: true },
+    { name: 'dni', label: 'DNI', field: row => row.cursante?.dni, align: 'left' },
+    { name: 'taller', label: 'Taller', field: row => row.taller?.nombre, align: 'left', sortable: true },
+    { name: 'fecha', label: 'Fecha', field: 'fecha', align: 'left', sortable: true },
+    { name: 'estado', label: 'Estado', field: 'estado', align: 'center' },
+];
 
 // Observar cambios en los props
 watch(() => props.users, (newUsers) => {
@@ -189,6 +212,47 @@ const columns = [
     { name: 'created_at', label: 'Registrado', field: 'created_at', align: 'left' },
     { name: 'actions', label: 'Acciones', field: 'actions', align: 'center' },
 ];
+
+// Funciones para inscripciones
+function buscarInscripcionesConDebounce() {
+    clearTimeout(debounceTimerInscripciones);
+    debounceTimerInscripciones = setTimeout(() => {
+        inscripcionesPagination.value.page = 1;
+        cargarInscripciones();
+    }, 500);
+}
+
+function onRequestInscripciones(props) {
+    const { page, rowsPerPage, sortBy, descending } = props.pagination;
+    inscripcionesPagination.value.page = page;
+    inscripcionesPagination.value.rowsPerPage = rowsPerPage;
+    inscripcionesPagination.value.sortBy = sortBy;
+    inscripcionesPagination.value.descending = descending;
+    cargarInscripciones();
+}
+
+function cargarInscripciones() {
+    loadingInscripciones.value = true;
+    const params = {
+        page: inscripcionesPagination.value.page,
+        per_page: inscripcionesPagination.value.rowsPerPage,
+    };
+    if (searchInscripciones.value) {
+        params.search = searchInscripciones.value;
+    }
+
+    window.axios.get('/admin/inscripciones', { params })
+        .then(res => {
+            inscripciones.value = res.data.data;
+            inscripcionesPagination.value.rowsNumber = res.data.total;
+        })
+        .catch(err => {
+            $q.notify({ type: 'negative', message: 'Error al cargar inscripciones' });
+        })
+        .finally(() => {
+            loadingInscripciones.value = false;
+        });
+}
 
 // Los datos ya están disponibles desde los props del servidor
 // No necesitamos hacer llamadas API para carga inicial
@@ -353,4 +417,8 @@ const deleteUser = (userId) => {
             });
     });
 };
+
+onMounted(() => {
+    cargarInscripciones();
+});
 </script>
