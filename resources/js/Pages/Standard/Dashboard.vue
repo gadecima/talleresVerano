@@ -132,19 +132,12 @@ defineProps({
 });
 
 const formatDate = (date) => {
-    // Si la fecha viene como string "YYYY-MM-DD", parsearlo sin conversión UTC
-    if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        const [year, month, day] = date.split('-');
-        return new Date(year, month - 1, day).toLocaleDateString('es-ES');
-    }
     return new Date(date).toLocaleDateString('es-ES');
 };
 
 const $q = useQuasar();
 
-// Obtener la fecha actual en formato YYYY-MM-DD sin conversión UTC
-const today = new Date();
-const hoyFecha = ref(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
+const hoyFecha = ref(new Date());
 const diaHoy = ref(new Date().toLocaleDateString('es-ES', { weekday: 'long' }));
 
 // Estado y datos
@@ -187,8 +180,7 @@ function cargarTalleresHoy() {
   window.axios.get('/standard/talleres/hoy')
     .then(res => {
       talleresHoy.value = res.data.talleres || [];
-      // res.data.fecha viene como "YYYY-MM-DD", no convertir a Date para evitar problemas UTC
-      hoyFecha.value = res.data.fecha || hoyFecha.value;
+      hoyFecha.value = new Date(res.data.fecha);
       diaHoy.value = res.data.dia || diaHoy.value;
     })
     .finally(() => {
@@ -201,8 +193,7 @@ function cargarInscripcionesHoy() {
   window.axios.get('/standard/inscripciones/hoy')
     .then(res => {
       inscripcionesHoy.value = res.data.inscripciones || [];
-      // res.data.fecha viene como "YYYY-MM-DD", no convertir a Date para evitar problemas UTC
-      hoyFecha.value = res.data.fecha || hoyFecha.value;
+      hoyFecha.value = new Date(res.data.fecha);
     })
     .finally(() => {
       loading.value.inscripciones = false;
