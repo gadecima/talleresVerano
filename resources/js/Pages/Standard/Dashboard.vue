@@ -157,12 +157,22 @@ defineProps({
 });
 
 const formatDate = (date) => {
+    // Si viene "YYYY-MM-DD" (backend), parsear como hora local para evitar desfase UTC
+    if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [year, month, day] = date.split('-');
+        return new Date(year, month - 1, day).toLocaleDateString('es-ES');
+    }
     return new Date(date).toLocaleDateString('es-ES');
+};
+
+const getTodayString = () => {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 };
 
 const $q = useQuasar();
 
-const hoyFecha = ref(new Date());
+const hoyFecha = ref(getTodayString());
 const diaHoy = ref(new Date().toLocaleDateString('es-ES', { weekday: 'long' }));
 
 // Estado y datos
@@ -206,7 +216,7 @@ function cargarTalleresHoy() {
   window.axios.get('/standard/talleres/hoy')
     .then(res => {
       talleresHoy.value = res.data.talleres || [];
-      hoyFecha.value = new Date(res.data.fecha);
+            hoyFecha.value = res.data.fecha || hoyFecha.value;
       diaHoy.value = res.data.dia || diaHoy.value;
     })
     .finally(() => {
@@ -219,7 +229,7 @@ function cargarInscripcionesHoy() {
   window.axios.get('/standard/inscripciones/hoy')
     .then(res => {
       inscripcionesHoy.value = res.data.inscripciones || [];
-      hoyFecha.value = new Date(res.data.fecha);
+            hoyFecha.value = res.data.fecha || hoyFecha.value;
     })
     .finally(() => {
       loading.value.inscripciones = false;
