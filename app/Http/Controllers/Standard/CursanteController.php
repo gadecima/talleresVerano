@@ -93,7 +93,7 @@ class CursanteController extends Controller
 
         $data = $request->validate([
             'nombre_apellido' => ['required', 'string', 'max:255'],
-            'dni' => ['required', 'string', 'regex:/^[0-9]{10}$/', Rule::unique('cursantes')->ignore($cursante->id)],
+            'dni' => ['required', 'string', 'regex:/^[0-9]{8}$/', Rule::unique('cursantes')->ignore($cursante->id)],
             'fecha_nacimiento' => ['required', 'date'],
             'localidad' => ['required', 'string', 'max:255'],
             'contacto' => ['nullable', 'string', 'max:255'],
@@ -102,7 +102,7 @@ class CursanteController extends Controller
             'nivel_educativo' => ['required', Rule::in(['inicial', 'primario', 'secundario'])],
         ], [
             'dni.unique' => 'Este DNI ya está registrado',
-            'dni.regex' => 'El DNI debe tener exactamente 10 dígitos numéricos',
+            'dni.regex' => 'El DNI debe tener exactamente 8 dígitos numéricos',
             'correo.unique' => 'Este correo electrónico ya está registrado',
             'correo.email' => 'El correo electrónico no es válido',
         ]);

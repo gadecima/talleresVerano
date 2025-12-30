@@ -182,7 +182,6 @@ const inscripcionesColumns = [
     { name: 'dni', label: 'DNI', field: row => row.cursante?.dni, align: 'left' },
     { name: 'taller', label: 'Taller', field: row => row.taller?.nombre, align: 'left', sortable: true },
     { name: 'fecha', label: 'Fecha', field: 'fecha', align: 'left', sortable: true },
-    { name: 'estado', label: 'Estado', field: 'estado', align: 'center' },
 ];
 
 // Observar cambios en los props

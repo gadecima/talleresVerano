@@ -218,7 +218,7 @@ function valReq(v) {
 function valDni(v) {
     if (!v) return true;
     if (!/^[0-9]+$/.test(v)) return 'El DNI debe contener solo números';
-    return v.length === 10 || 'El DNI debe tener exactamente 10 dígitos';
+    return v.length === 8 || 'El DNI debe tener exactamente 8 dígitos';
 }
 
 function valEmail(v) {
