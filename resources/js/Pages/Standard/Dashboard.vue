@@ -1,6 +1,6 @@
 <template>
     <StandardLayout>
-        <q-page class="q-pa-md">
+        <q-page class="q-pa-sm">
             <div class="row items-center">
                 <div class="col">
                     <h4 class="q-my-none">Bienvenido, {{ user.name }}</h4>
@@ -8,8 +8,33 @@
                 </div>
             </div>
 
+            <!-- Contadores del día -->
+            <div class="row q-col-gutter-md q-mt-sm">
+                <div class="col-12 col-md-6">
+                    <q-card class="contador-card">
+                        <q-card-section class="q-pa-sm q-pb-xs">
+                            <div class="text-subtitle2 q-mb-xs">Cursantes Inscriptos Hoy</div>
+                            <div class="text-h4 text-primary">{{ contadores.inscriptosHoy }}</div>
+                            <p class="text-caption text-grey q-my-xs">Inscritos en talleres hoy</p>
+                        </q-card-section>
+                        <q-linear-progress :value="contadores.totalCursantes > 0 ? contadores.inscriptosHoy / contadores.totalCursantes : 0" color="primary" size="3px" />
+                    </q-card>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <q-card class="contador-card">
+                        <q-card-section class="q-pa-sm q-pb-xs">
+                            <div class="text-subtitle2 q-mb-xs">Nuevos Cursantes Hoy</div>
+                            <div class="text-h4 text-secondary">{{ contadores.nuevosHoy }}/{{ contadores.totalCursantes }}</div>
+                            <p class="text-caption text-grey q-my-xs">Nuevos de {{ contadores.totalCursantes }} totales</p>
+                        </q-card-section>
+                        <q-linear-progress :value="contadores.totalCursantes > 0 ? contadores.nuevosHoy / contadores.totalCursantes : 0" color="secondary" size="3px" />
+                    </q-card>
+                </div>
+            </div>
+
             <!-- Acceso rápido: Registrar nuevo cursante -->
-            <q-card class="q-mt-lg">
+            <q-card class="q-mt-md">
                 <q-card-section class="row items-center justify-between">
                     <div class="text-h6">Registro de Cursante</div>
                         <q-btn color="primary" icon="person_add" label="Registrar nuevo cursante" href="/standard/section1" />
@@ -18,7 +43,7 @@
             </q-card>
 
             <!-- Búsqueda de cursante por DNI y asignación de talleres -->
-            <q-card class="q-mt-lg">
+            <q-card class="q-mt-md">
                 <q-card-section>
                     <div class="row q-col-gutter-md items-start">
                         <div class="col-12 col-md-5">
@@ -98,7 +123,7 @@
             </q-card>
 
             <!-- Inscripciones del día (todos los cursantes) -->
-            <q-card class="q-mt-lg">
+            <q-card class="q-mt-md">
                 <q-card-section>
                     <div class="row items-center">
                         <div class="col">
@@ -146,8 +171,9 @@ const cursante = ref(null);
 const talleresHoy = ref([]);
 const inscripcionesCursante = ref([]);
 const inscripcionesHoy = ref([]);
+const contadores = ref({ inscriptosHoy: 0, nuevosHoy: 0, totalCursantes: 0 });
 
-const loading = ref({ buscar: false, talleres: false, inscripciones: false, inscribir: false });
+const loading = ref({ buscar: false, talleres: false, inscripciones: false, inscribir: false, contadores: false });
 
 const columns = [
   { name: 'cursante', label: 'Cursante', field: row => row.cursante.nombre_apellido, align: 'left' },
@@ -200,6 +226,20 @@ function cargarInscripcionesHoy() {
     });
 }
 
+function cargarContadores() {
+  loading.value.contadores = true;
+  window.axios.get('/standard/contadores')
+    .then(res => {
+      contadores.value = res.data;
+    })
+    .catch(err => {
+      $q.notify({ type: 'warning', message: 'Error al cargar los contadores' });
+    })
+    .finally(() => {
+      loading.value.contadores = false;
+    });
+}
+
 function inscribir(tallerId) {
   if (!cursante.value) return;
   loading.value.inscribir = true;
@@ -211,6 +251,7 @@ function inscribir(tallerId) {
       $q.notify({ type: 'positive', message: 'Inscripción realizada' });
       buscarCursante();
       cargarInscripcionesHoy();
+      cargarContadores();
     })
     .catch(err => {
       $q.notify({ type: 'warning', message: err.response?.data?.message || 'No se pudo inscribir' });
@@ -223,6 +264,7 @@ function inscribir(tallerId) {
 onMounted(() => {
   cargarTalleresHoy();
   cargarInscripcionesHoy();
+  cargarContadores();
   const params = new URLSearchParams(window.location.search);
   const dniParam = params.get('dni');
   if (dniParam) {
@@ -232,3 +274,17 @@ onMounted(() => {
   }
 });
 </script>
+
+<style scoped>
+.contador-card {
+  height: auto;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.contador-card :deep(.q-card__section) {
+  flex-grow: 1;
+}
+</style>

@@ -85,6 +85,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('api')->name('api.
 Route::middleware(['auth', 'verified', 'role:standard'])->prefix('standard')->name('standard.')->group(function () {
     Route::redirect('/', '/dashboard');
     Route::get('/dashboard', [StandardUserController::class, 'dashboard'])->name('dashboard');
+    Route::get('/contadores', [StandardUserController::class, 'getContadores'])->name('contadores');
     Route::get('/section1', function () {
         return Inertia::render('Standard/Section1');
     })->name('section1');
