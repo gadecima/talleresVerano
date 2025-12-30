@@ -216,7 +216,8 @@ function cargarTalleresHoy() {
   window.axios.get('/standard/talleres/hoy')
     .then(res => {
       talleresHoy.value = res.data.talleres || [];
-            hoyFecha.value = res.data.fecha || hoyFecha.value;
+            // Preferir fecha_iso (incluye offset) para evitar desfase horario
+            hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
       diaHoy.value = res.data.dia || diaHoy.value;
     })
     .finally(() => {
@@ -229,7 +230,7 @@ function cargarInscripcionesHoy() {
   window.axios.get('/standard/inscripciones/hoy')
     .then(res => {
       inscripcionesHoy.value = res.data.inscripciones || [];
-            hoyFecha.value = res.data.fecha || hoyFecha.value;
+            hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
     })
     .finally(() => {
       loading.value.inscripciones = false;

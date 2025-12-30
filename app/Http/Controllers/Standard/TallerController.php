@@ -22,6 +22,7 @@ class TallerController extends Controller
         if (!$diaNombre) {
             return response()->json([
                 'fecha' => $carbon->toDateString(),
+                'fecha_iso' => $carbon->toISOString(true),
                 'dia' => null,
                 'talleres' => [],
             ]);
@@ -35,6 +36,7 @@ class TallerController extends Controller
 
         return response()->json([
             'fecha' => $carbon->toDateString(),
+            'fecha_iso' => $carbon->toISOString(true),
             'dia' => $diaNombre,
             'talleres' => $talleres,
         ]);

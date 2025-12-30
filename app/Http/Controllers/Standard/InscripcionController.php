@@ -19,7 +19,8 @@ class InscripcionController extends Controller
     public function indexHoy(Request $request)
     {
         $fecha = $request->query('fecha');
-        $fechaDate = $fecha ? \Illuminate\Support\Carbon::parse($fecha)->toDateString() : \Illuminate\Support\Carbon::today()->toDateString();
+        $hoy = $fecha ? \Illuminate\Support\Carbon::parse($fecha) : \Illuminate\Support\Carbon::today();
+        $fechaDate = $hoy->toDateString();
 
         $inscripciones = Inscripcion::with(['cursante', 'taller'])
             ->whereDate('fecha', $fechaDate)
@@ -28,6 +29,8 @@ class InscripcionController extends Controller
 
         return response()->json([
             'fecha' => $fechaDate,
+            // ISO 8601 con offset para evitar desfase en el frontend
+            'fecha_iso' => $hoy->toISOString(true),
             'inscripciones' => $inscripciones,
         ]);
     }
