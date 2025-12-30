@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
             $user->load('role');
         }
 
+        //si user no tiene rol asignado, asume 'standard' por defecto
         $roleSlug = $user->role?->slug ?? 'standard';
 
         \Log::debug('Dashboard redirect check', [
