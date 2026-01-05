@@ -19,7 +19,7 @@ class TallerController extends Controller
         $sortBy = $request->query('sortBy', 'created_at');
         $sortDesc = $request->query('sortDesc', 'true') === 'true';
 
-        $allowedSorts = ['nombre', 'responsable', 'orientado', 'created_at'];
+        $allowedSorts = ['nombre', 'espacio_fisico', 'created_at'];
         if (!in_array($sortBy, $allowedSorts)) {
             $sortBy = 'created_at';
         }
@@ -45,19 +45,31 @@ class TallerController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nombre' => ['required', 'string', 'max:255'],
-            'responsable' => ['required', 'string', 'max:255'],
-            'orientado' => ['required', Rule::in(['inicial', 'primario', 'secundario'])],
+            'nombre' => ['required', 'string', 'max:120'],
+            'edad_minima' => ['required', 'integer', 'min:0', 'max:120'],
+            'edad_maxima' => ['required', 'integer', 'gte:edad_minima', 'max:120'],
+            'espacio_fisico' => ['nullable', 'string', 'max:120'],
+            'descripcion' => ['nullable', 'string'],
             'dias' => ['required', 'array', 'min:1'],
             'dias.*' => ['required', Rule::in(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'])],
+            //'cupos' => ['required', 'integer', 'min:1', 'max:65535'],
+            //'responsable' => ['required', 'string', 'max:120'],
+            //'orientado' => [ Rule::in(['inicial', 'primario', 'secundario', 'indefinido'])],
         ]);
 
-        // Normalizar datos: cambio a mayusculas la primera letra de cada palabra
-        $data['nombre'] = ucwords(strtolower(trim($data['nombre'])));
-        $data['responsable'] = ucwords(strtolower(trim($data['responsable'])));
-        $data['orientado'] = strtolower(trim($data['orientado']));
+        // Normalizar datos de texto
+        $tallerData = [
+            'nombre' => ucwords(strtolower(trim($data['nombre']))),
+            'edad_minima' => $data['edad_minima'],
+            'edad_maxima' => $data['edad_maxima'],
+            'espacio_fisico' => $data['espacio_fisico'] ?? null,
+            'descripcion' => $data['descripcion'] ?? null,
+            //'cupos' => $data['cupos'],
+            //'responsable' => ucwords(strtolower(trim($data['responsable']))),
+            //'orientado' => strtolower(trim($data['orientado'])),
+        ];
 
-        $taller = Taller::create($data);
+        $taller = Taller::create($tallerData);
 
         // Crear los días del taller
         foreach ($data['dias'] as $dia) {
@@ -73,19 +85,30 @@ class TallerController extends Controller
     public function update(Request $request, Taller $taller)
     {
         $data = $request->validate([
-            'nombre' => ['required', 'string', 'max:255'],
-            'responsable' => ['required', 'string', 'max:255'],
-            'orientado' => ['required', Rule::in(['inicial', 'primario', 'secundario'])],
+            'nombre' => ['required', 'string', 'max:120'],
+            'edad_minima' => ['required', 'integer', 'min:0', 'max:120'],
+            'edad_maxima' => ['required', 'integer', 'gte:edad_minima', 'max:120'],
+            'espacio_fisico' => ['nullable', 'string', 'max:120'],
+            'descripcion' => ['nullable', 'string'],
             'dias' => ['required', 'array', 'min:1'],
             'dias.*' => ['required', Rule::in(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'])],
+            //'cupos' => ['integer', 'min:1', 'max:65535'],
+            //'responsable' => ['string', 'max:120'],
+            //'orientado' => [ Rule::in(['inicial', 'primario', 'secundario', 'indefinido'])],
         ]);
 
-        // Normalizar datos
-        $data['nombre'] = ucwords(strtolower(trim($data['nombre'])));
-        $data['responsable'] = ucwords(strtolower(trim($data['responsable'])));
-        $data['orientado'] = strtolower(trim($data['orientado']));
+        $tallerData = [
+            'nombre' => ucwords(strtolower(trim($data['nombre']))),
+            'edad_minima' => $data['edad_minima'],
+            'edad_maxima' => $data['edad_maxima'],
+            'espacio_fisico' => $data['espacio_fisico'] ?? null,
+            'descripcion' => $data['descripcion'] ?? null,
+            //'responsable' => ucwords(strtolower(trim($data['responsable']))),
+            //'orientado' => strtolower(trim($data['orientado'])),
+            //'cupos' => $data['cupos'],
+        ];
 
-        $taller->update($data);
+        $taller->update($tallerData);
 
         // Actualizar los días: eliminar los existentes y crear los nuevos
         $taller->dias()->delete();

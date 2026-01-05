@@ -19,7 +19,7 @@ class InscripcionController extends Controller
     public function indexHoy(Request $request)
     {
         $fecha = $request->query('fecha');
-        $hoy = $fecha ? \Illuminate\Support\Carbon::parse($fecha) : \Illuminate\Support\Carbon::today();
+        $hoy = $fecha ? Carbon::parse($fecha) : Carbon::today();
         $fechaDate = $hoy->toDateString();
 
         $inscripciones = Inscripcion::with(['cursante', 'taller'])

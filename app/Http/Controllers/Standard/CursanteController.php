@@ -20,7 +20,7 @@ class CursanteController extends Controller
         $sortBy = $request->query('sortBy', 'created_at');
         $sortDesc = $request->query('sortDesc', 'true') === 'true';
 
-        $allowedSorts = ['nombre_apellido', 'dni', 'fecha_nacimiento', 'localidad', 'nivel_educativo', 'created_at'];
+        $allowedSorts = ['nombre_apellido', 'created_at'];
         if (!in_array($sortBy, $allowedSorts)) {
             $sortBy = 'created_at';
         }
@@ -54,12 +54,11 @@ class CursanteController extends Controller
         $data = $request->validate([
             'nombre_apellido' => ['required', 'string', 'max:255'],
             'dni' => ['required', 'string', 'regex:/^[0-9]{8}$/', 'unique:cursantes,dni'],
-            'fecha_nacimiento' => ['required', 'date'],
+            'edad' => ['required', 'integer', 'min:0', 'max:120'],
             'localidad' => ['required', 'string', 'max:255'],
+            'tutor' => ['nullable', 'string', 'max:255'],
             'contacto' => ['nullable', 'string', 'max:255'],
             'correo' => ['nullable', 'email', 'max:255', 'unique:cursantes,correo'],
-            'escuela' => ['nullable', 'string', 'max:255'],
-            'nivel_educativo' => ['required', Rule::in(['inicial', 'primario', 'secundario'])],
         ],
         //capturo errores de validacion y los personalizo
         [
@@ -94,12 +93,11 @@ class CursanteController extends Controller
         $data = $request->validate([
             'nombre_apellido' => ['required', 'string', 'max:255'],
             'dni' => ['required', 'string', 'regex:/^[0-9]{8}$/', Rule::unique('cursantes')->ignore($cursante->id)],
-            'fecha_nacimiento' => ['required', 'date'],
+            'edad' => ['required', 'integer', 'min:0', 'max:120'],
             'localidad' => ['required', 'string', 'max:255'],
+            'tutor' => ['nullable', 'string', 'max:255'],
             'contacto' => ['nullable', 'string', 'max:255'],
             'correo' => ['nullable', 'email', 'max:255', Rule::unique('cursantes')->ignore($cursante->id)],
-            'escuela' => ['nullable', 'string', 'max:255'],
-            'nivel_educativo' => ['required', Rule::in(['inicial', 'primario', 'secundario'])],
         ], [
             'dni.unique' => 'Este DNI ya está registrado',
             'dni.regex' => 'El DNI debe tener exactamente 8 dígitos numéricos',

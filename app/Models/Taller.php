@@ -13,7 +13,12 @@ class Taller extends Model
 
     protected $fillable = [
         'nombre',
+        'edad_minima',
+        'edad_maxima',
+        'espacio_fisico',
         'responsable',
+        'descripcion',
+        'cupos',
         'orientado',
     ];
 

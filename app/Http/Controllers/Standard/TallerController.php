@@ -50,6 +50,8 @@ class TallerController extends Controller
             3 => 'miercoles',
             4 => 'jueves',
             5 => 'viernes',
+            6 => 'sabado',
+            7 => 'domingo',
         ][$isoDay] ?? null;
     }
 }

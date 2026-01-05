@@ -12,9 +12,14 @@ return new class extends Migration {
     {
         Schema::create('talleres', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->string('responsable');
-            $table->enum('orientado', ['inicial', 'primario', 'secundario']);
+            $table->string('nombre', 120);
+            $table->unsignedTinyInteger('edad_minima');
+            $table->unsignedTinyInteger('edad_maxima');
+            $table->string('espacio_fisico', 120)->nullable();
+            $table->text('descripcion')->nullable();
+            $table->string('responsable', 120)->nullable();
+            $table->unsignedSmallInteger('cupos')->default(100);
+            $table->enum('orientado', ['inicial', 'primario', 'secundario', 'indefinido'])->default('indefinido');
             $table->timestamps();
         });
     }

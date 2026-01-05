@@ -12,16 +12,11 @@ class Cursante extends Model
     protected $fillable = [
         'nombre_apellido',
         'dni',
-        'fecha_nacimiento',
+        'edad',
         'localidad',
+        'tutor',
         'contacto',
         'correo',
-        'escuela',
-        'nivel_educativo',
-    ];
-
-    protected $casts = [
-        'fecha_nacimiento' => 'date',
     ];
 
     public function inscripciones()

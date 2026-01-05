@@ -43,6 +43,31 @@
                         flat
                         bordered
                     >
+                        <template v-slot:body-cell-dias="props">
+                            <q-td :props="props">
+                                <q-chip
+                                    v-for="dia in props.row.dias"
+                                    :key="dia.id"
+                                    size="sm"
+                                    color="primary"
+                                    text-color="white"
+                                    dense
+                                    class="q-ma-xs"
+                                >
+                                    {{ dia.dia_semana.charAt(0).toUpperCase() + dia.dia_semana.slice(1) }}
+                                </q-chip>
+                                <span v-if="!props.row.dias || props.row.dias.length === 0" class="text-grey">
+                                    Sin días asignados
+                                </span>
+                            </q-td>
+                        </template>
+                        <template v-slot:body-cell-descripcion="props">
+                            <q-td :props="props" style="max-width: 300px">
+                                <div class="ellipsis" style="white-space: normal; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                    {{ props.row.descripcion || 'Sin descripción' }}
+                                </div>
+                            </q-td>
+                        </template>
                         <template v-slot:body-cell-actions="props">
                             <q-td :props="props">
                                 <q-btn flat dense round icon="edit" color="primary" @click="editarTaller(props.row)">
@@ -74,20 +99,22 @@
                                     <q-input v-model="formCrear.nombre" label="Nombre del Taller" outlined
                                         :rules="[valReq]" />
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <q-input v-model="formCrear.responsable" label="Responsable" outlined
-                                        :rules="[valReq]" />
+                                <div class="col-12 col-md-3">
+                                    <q-input v-model.number="formCrear.edad_minima" label="Edad Mínima" type="number" outlined
+                                    :rules="[valReq]" />
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <q-input v-model.number="formCrear.edad_maxima" label="Edad Máxima" type="number" outlined
+                                    :rules="[valReq]" />
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <q-select
-                                        v-model="formCrear.orientado"
-                                        :options="orientadoOptions"
-                                        emit-value
-                                        map-options
-                                        label="Orientado a"
-                                        outlined
-                                        :rules="[valReq]"
-                                    />
+                                    <q-input v-model="formCrear.espacio_fisico" label="Espacio Físico" outlined />
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                </div>
+                                <div class="col-12">
+                                    <q-input v-model="formCrear.descripcion" label="Descripción" type="textarea" outlined />
                                 </div>
                                 <div class="col-12">
                                     <q-select
@@ -102,6 +129,23 @@
                                         hint="Selecciona uno o más días"
                                     />
                                 </div>
+                                <!--
+                                <div class="col-12 col-md-6">
+                                    <q-input v-model.number="formCrear.cupos" label="Cupos" type="number" outlined
+                                    :rules="[valReq]" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <q-input v-model="formCrear.responsable" label="Responsable"
+                                        outlined :rules="[valReq]" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <q-select
+                                        v-model="formCrear.orientado" :options="orientadoOptions"
+                                        emit-value map-options label="Orientado a" outlined
+                                        :rules="[valReq]"
+                                    />
+                                </div>
+                                -->
                             </div>
 
                             <div class="row items-center q-mt-md">
@@ -130,20 +174,22 @@
                                     <q-input v-model="formEditar.nombre" label="Nombre del Taller" outlined
                                         :rules="[valReq]" />
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <q-input v-model="formEditar.responsable" label="Responsable" outlined
+
+                                <div class="col-12 col-md-3">
+                                    <q-input v-model.number="formEditar.edad_minima" label="Edad Mínima" type="number" outlined
+                                        :rules="[valReq]" />
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <q-input v-model.number="formEditar.edad_maxima" label="Edad Máxima" type="number" outlined
                                         :rules="[valReq]" />
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <q-select
-                                        v-model="formEditar.orientado"
-                                        :options="orientadoOptions"
-                                        emit-value
-                                        map-options
-                                        label="Orientado a"
-                                        outlined
-                                        :rules="[valReq]"
-                                    />
+                                    <q-input v-model="formEditar.espacio_fisico" label="Espacio Físico" outlined />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                </div>
+                                <div class="col-12">
+                                    <q-input v-model="formEditar.descripcion" label="Descripción" type="textarea" outlined />
                                 </div>
                                 <div class="col-12">
                                     <q-select
@@ -158,6 +204,20 @@
                                         hint="Selecciona uno o más días"
                                     />
                                 </div>
+                                <!-- <div class="col-12 col-md-6">
+                                    <q-input v-model.number="formEditar.cupos" label="Cupos" type="number" outlined
+                                        :rules="[valReq]" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <q-input v-model="formEditar.responsable" label="Responsable" outlined
+                                        :rules="[valReq]" />
+                                </div>
+                                 <div class="col-12 col-md-6">
+                                    <q-select
+                                        v-model="formEditar.orientado" :options="orientadoOptions"
+                                        emit-value map-options label="Orientado a" outlined :rules="[valReq]"
+                                    />
+                                </div> -->
                             </div>
 
                             <div class="row items-center q-mt-md">
@@ -207,24 +267,28 @@ const search = ref('');
 let debounceTimer = null;
 
 const pagination = ref({
-    sortBy: 'created_at',
-    descending: true,
-    page: 1,
-    rowsPerPage: 15,
-    rowsNumber: 0,
+    sortBy: 'created_at', descending: true,
+    page: 1, rowsPerPage: 15, rowsNumber: 0,
 });
 
 const columns = [
     { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left', sortable: true },
-    { name: 'responsable', label: 'Responsable', field: 'responsable', align: 'left', sortable: true },
-    { name: 'orientado', label: 'Orientado a', field: 'orientado', align: 'left', sortable: true, format: (val) => val ? (val.charAt(0).toUpperCase() + val.slice(1)) : '' },
+    { name: 'espacio_fisico', label: 'Espacio Físico', field: 'espacio_fisico', align: 'left', sortable: true },
+    { name: 'edad_minima', label: 'Edad Mín', field: 'edad_minima', align: 'center' },
+    { name: 'edad_maxima', label: 'Edad Máx', field: 'edad_maxima', align: 'center' },
+    { name: 'dias', label: 'Días', field: 'dias', align: 'left' },
+    { name: 'descripcion', label: 'Descripción', field: 'descripcion', align: 'left', style: 'max-width: 300px' },
     { name: 'actions', label: 'Acciones', field: 'actions', align: 'center' },
+    // { name: 'cupos', label: 'Cupos', field: 'cupos', align: 'center' },
+    // { name: 'orientado', label: 'Orientado a', field: 'orientado', align: 'left', sortable: true, format: (val) => val ? (val.charAt(0).toUpperCase() + val.slice(1)) : '' },
+    // { name: 'responsable', label: 'Responsable', field: 'responsable', align: 'left', sortable: true },
 ];
 
 const orientadoOptions = [
     { label: 'Inicial', value: 'inicial' },
     { label: 'Primario', value: 'primario' },
     { label: 'Secundario', value: 'secundario' },
+    { label: 'Indefinido', value: 'indefinido' },
 ];
 
 const diasOptions = [
@@ -245,6 +309,11 @@ const tallerEliminar = ref(null);
 const formCrear = reactive({
     nombre: '',
     responsable: '',
+    edad_minima: null,
+    edad_maxima: null,
+    espacio_fisico: '',
+    descripcion: '',
+    cupos: null,
     orientado: null,
     dias: [],
 });
@@ -253,6 +322,11 @@ const formEditar = reactive({
     id: null,
     nombre: '',
     responsable: '',
+    edad_minima: null,
+    edad_maxima: null,
+    espacio_fisico: '',
+    descripcion: '',
+    cupos: null,
     orientado: null,
     dias: [],
 });
@@ -312,8 +386,13 @@ function cargarTalleres() {
 function abrirDialogoCrear() {
     formCrear.nombre = '';
     formCrear.responsable = '';
-    formCrear.orientado = '';
+    formCrear.edad_minima = null;
+    formCrear.edad_maxima = null;
+    formCrear.espacio_fisico = '';
+    formCrear.descripcion = '';
     formCrear.dias = [];
+    // formCrear.cupos = null;
+    // formCrear.orientado = '';
     dialogCrear.value = true;
 }
 
@@ -344,6 +423,11 @@ function editarTaller(taller) {
     formEditar.id = taller.id;
     formEditar.nombre = taller.nombre;
     formEditar.responsable = taller.responsable;
+    formEditar.edad_minima = taller.edad_minima;
+    formEditar.edad_maxima = taller.edad_maxima;
+    formEditar.espacio_fisico = taller.espacio_fisico || '';
+    formEditar.descripcion = taller.descripcion || '';
+    formEditar.cupos = taller.cupos;
     formEditar.orientado = taller.orientado;
     formEditar.dias = taller.dias ? taller.dias.map(d => d.dia_semana) : [];
     dialogEditar.value = true;

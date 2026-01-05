@@ -14,12 +14,13 @@ return new class extends Migration {
             $table->id();
             $table->string('nombre_apellido');
             $table->string('dni')->unique();
-            $table->date('fecha_nacimiento');
+            $table->integer('edad');
             $table->string('localidad');
+            $table->string('tutor');
             $table->string('contacto')->nullable();
             $table->string('correo')->nullable();
-            $table->string('escuela')->nullable();
-            $table->enum('nivel_educativo', ['inicial', 'primario', 'secundario']);
+            //$table->string('escuela')->nullable();
+            //$table->enum('nivel_educativo', ['inicial', 'primario', 'secundario']);
             $table->timestamps();
         });
     }
