@@ -7,6 +7,7 @@ use App\Models\Inscripcion;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class StandardUserController extends Controller
 {
@@ -39,6 +40,32 @@ class StandardUserController extends Controller
             'inscriptosHoy' => $inscriptosHoy,
             'nuevosHoy' => $nuevosHoy,
             'totalCursantes' => $totalCursantes,
+        ]);
+    }
+
+    /**
+     * Obtener detalles de inscripciones por taller para hoy
+     */
+    public function detallesInscripcionesHoy()
+    {
+        $hoy = Carbon::today()->toDateString();
+
+        $detalles = DB::table('inscripciones')
+            ->join('talleres', 'inscripciones.taller_id', '=', 'talleres.id')
+            ->select(
+                'talleres.id as taller_id',
+                'talleres.nombre as nombre_taller',
+                'talleres.espacio_fisico as espacio',
+                'talleres.cupos',
+                DB::raw('COUNT(inscripciones.id) as cantidad_inscriptos')
+            )
+            ->whereDate('inscripciones.fecha', $hoy)
+            ->groupBy('talleres.id', 'talleres.nombre', 'talleres.espacio_fisico', 'talleres.cupos')
+            ->orderBy('talleres.nombre')
+            ->get();
+
+        return response()->json([
+            'detalles' => $detalles
         ]);
     }
 }

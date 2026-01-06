@@ -57,6 +57,10 @@ class InscripcionController extends Controller
             return response()->json(['message' => 'Taller no encontrado'], 404);
         }
 
+        if ($cursante->edad < $taller->edad_minima || $cursante->edad > $taller->edad_maxima) {
+            return response()->json(['message' => 'El cursante no cumple con la edad permitida para este taller'], 422);
+        }
+
         // Validar que el taller se dicta en el día de la semana indicado
         $diaIso = Carbon::parse($fecha)->dayOfWeekIso; // 1=lunes
         $diaNombre = [1=>'lunes',2=>'martes',3=>'miercoles',4=>'jueves',5=>'viernes'][$diaIso] ?? null;

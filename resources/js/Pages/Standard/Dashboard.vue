@@ -10,8 +10,8 @@
 
             <!-- Contadores del día -->
             <div class="row q-col-gutter-md q-mt-sm">
-                <div class="col-12 col-md-6">
-                    <q-card class="contador-card">
+                <div class="col-12 col-md-4">
+                    <q-card class="contador-card clickable" @click="mostrarModalInscripciones">
                         <q-card-section class="q-pa-sm q-pb-xs">
                             <div class="text-subtitle2 q-mb-xs">Cursantes Inscriptos Hoy</div>
                             <div class="text-h4 text-primary">{{ contadores.inscriptosHoy }}</div>
@@ -21,7 +21,7 @@
                     </q-card>
                 </div>
 
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-4">
                     <q-card class="contador-card">
                         <q-card-section class="q-pa-sm q-pb-xs">
                             <div class="text-subtitle2 q-mb-xs">Nuevos Cursantes Hoy</div>
@@ -29,6 +29,17 @@
                             <p class="text-caption text-grey q-my-xs">Nuevos de {{ contadores.totalCursantes }} totales</p>
                         </q-card-section>
                         <q-linear-progress :value="contadores.totalCursantes > 0 ? contadores.nuevosHoy / contadores.totalCursantes : 0" color="secondary" size="3px" />
+                    </q-card>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <q-card class="contador-card clickable" @click="mostrarModalTalleres">
+                        <q-card-section class="q-pa-sm q-pb-xs">
+                            <div class="text-subtitle2 q-mb-xs">Talleres Disponibles Hoy</div>
+                            <div class="text-h4 text-accent">{{ todosLosTalleres.length }}</div>
+                            <p class="text-caption text-grey q-my-xs">Click para ver detalles</p>
+                        </q-card-section>
+                        <q-linear-progress :value="1" color="accent" size="3px" />
                     </q-card>
                 </div>
             </div>
@@ -70,15 +81,15 @@
                                     </q-item>
                                     <q-item>
                                         <q-item-section>
-                                            <q-item-label>Nivel</q-item-label>
-                                            <q-item-label caption>{{ cursante.nivel_educativo }}</q-item-label>
+                                            <q-item-label>Edad</q-item-label>
+                                            <q-item-label caption>{{ cursante.edad }}</q-item-label>
                                         </q-item-section>
                                     </q-item>
                                 </q-list>
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-7">
+                        <div v-if="cursante" class="col-12 col-md-7">
                             <div class="row items-center">
                                 <div class="col-auto">
                                     <div class="text-h6">Talleres disponibles hoy ({{ diaHoy }})</div>
@@ -89,7 +100,7 @@
                             </div>
 
                             <q-banner v-if="talleresHoy.length === 0" class="q-my-md" dense>
-                                No hay talleres disponibles para hoy.
+                                {{ cursante ? 'No hay talleres disponibles para este cursante hoy (edad o limite alcanzado).' : 'No hay talleres disponibles para hoy.' }}
                             </q-banner>
 
                             <q-list v-else bordered class="q-mt-md">
@@ -97,7 +108,7 @@
                                     <q-item-section>
                                         <q-item-label>{{ t.nombre }}</q-item-label>
                                         <q-item-label caption>
-                                            Responsable: {{ t.responsable }} · Orientado: {{ t.orientado }}
+                                            Edad: {{ t.edad_minima }} - {{ t.edad_maxima }} · Descripción: {{ t.descripcion }}
                                         </q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
@@ -143,6 +154,84 @@
                     />
                 </q-card-section>
             </q-card>
+
+            <!-- Modal de Talleres del Día -->
+            <q-dialog v-model="modalTalleres">
+                <q-card style="min-width: 700px; max-width: 90vw;">
+                    <q-card-section>
+                        <div class="row items-center">
+                            <div class="col">
+                                <div class="text-h6">Talleres Disponibles Hoy ({{ diaHoy }})</div>
+                            </div>
+                            <div class="col-auto">
+                                <q-btn flat icon="refresh" label="Actualizar" @click="cargarTodosLosTalleres" :loading="loading.todosLosTalleres" />
+                            </div>
+                        </div>
+                    </q-card-section>
+                    <q-separator />
+                    <q-card-section class="q-pt-none">
+                        <q-table
+                            :rows="todosLosTalleres"
+                            :columns="columnsTalleres"
+                            row-key="id"
+                            dense
+                            flat
+                            :rows-per-page-options="[10, 20, 50]"
+                            class="q-mt-md"
+                        >
+                            <template v-slot:body-cell-dias="props">
+                                <q-td :props="props">
+                                    <q-badge v-for="dia in props.row.dias" :key="dia.id" color="primary" class="q-mr-xs">
+                                        {{ dia.dia_semana }}
+                                    </q-badge>
+                                </q-td>
+                            </template>
+                        </q-table>
+                    </q-card-section>
+                    <q-separator />
+                    <q-card-actions align="right">
+                        <q-btn flat label="Cerrar" color="primary" @click="modalTalleres = false" />
+                    </q-card-actions>
+                </q-card>
+            </q-dialog>
+
+            <!-- Modal de Inscripciones por Taller -->
+            <q-dialog v-model="modalInscripciones">
+                <q-card style="min-width: 800px; max-width: 90vw;">
+                    <q-card-section>
+                        <div class="row items-center">
+                            <div class="col">
+                                <div class="text-h6">Inscripciones por Taller - Hoy ({{ diaHoy }})</div>
+                            </div>
+                            <div class="col-auto">
+                                <q-btn flat icon="refresh" label="Actualizar" @click="cargarDetallesInscripciones" :loading="loading.detallesInscripciones" />
+                            </div>
+                        </div>
+                    </q-card-section>
+                    <q-separator />
+                    <q-card-section class="q-pt-none">
+                        <q-table
+                            :rows="detallesInscripciones"
+                            :columns="columnsDetallesInscripciones"
+                            row-key="taller_id"
+                            dense
+                            flat
+                            class="q-mt-md"
+                        >
+                            <template v-slot:body-cell-acciones="props">
+                                <q-td :props="props">
+                                    <q-btn flat dense size="sm" icon="description" color="primary" title="Exportar PDF" class="q-mr-xs" />
+                                    <q-btn flat dense size="sm" icon="table_chart" color="green" title="Exportar Excel" />
+                                </q-td>
+                            </template>
+                        </q-table>
+                    </q-card-section>
+                    <q-separator />
+                    <q-card-actions align="right">
+                        <q-btn flat label="Cerrar" color="primary" @click="modalInscripciones = false" />
+                    </q-card-actions>
+                </q-card>
+            </q-dialog>
         </q-page>
     </StandardLayout>
 </template>
@@ -178,12 +267,16 @@ const diaHoy = ref(new Date().toLocaleDateString('es-ES', { weekday: 'long' }));
 // Estado y datos
 const dni = ref('');
 const cursante = ref(null);
-const talleresHoy = ref([]);
+const talleresHoy = ref([]); // Talleres filtrados por cursante
+const todosLosTalleres = ref([]); // Todos los talleres del día
 const inscripcionesCursante = ref([]);
 const inscripcionesHoy = ref([]);
 const contadores = ref({ inscriptosHoy: 0, nuevosHoy: 0, totalCursantes: 0 });
+const modalTalleres = ref(false);
+const modalInscripciones = ref(false);
+const detallesInscripciones = ref([]);
 
-const loading = ref({ buscar: false, talleres: false, inscripciones: false, inscribir: false, contadores: false });
+const loading = ref({ buscar: false, talleres: false, inscripciones: false, inscribir: false, contadores: false, todosLosTalleres: false, detallesInscripciones: false });
 
 const columns = [
   { name: 'cursante', label: 'Cursante', field: row => row.cursante.nombre_apellido, align: 'left' },
@@ -193,6 +286,35 @@ const columns = [
   { name: 'hora', label: 'Hora', field: row => new Date(row.created_at).toLocaleTimeString('es-ES'), align: 'left' },
 ];
 
+const columnsTalleres = [
+  { name: 'nombre', label: 'Taller', field: 'nombre', align: 'left', sortable: true },
+  { name: 'edad_minima', label: 'Edad Mín', field: 'edad_minima', align: 'center', sortable: true },
+  { name: 'edad_maxima', label: 'Edad Máx', field: 'edad_maxima', align: 'center', sortable: true },
+  { name: 'dias', label: 'Días', field: 'dias', align: 'left' },
+  { name: 'descripcion', label: 'Descripción', field: 'descripcion', align: 'left', sortable: false },
+];
+
+const columnsDetallesInscripciones = [
+  { name: 'nombre_taller', label: 'Taller', field: 'nombre_taller', align: 'left', sortable: true },
+  { name: 'espacio', label: 'Espacio', field: 'espacio', align: 'center', sortable: true },
+  { name: 'cantidad_inscriptos', label: 'Inscritos', field: 'cantidad_inscriptos', align: 'center', sortable: true },
+  { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
+];
+
+const actualizarDisponibilidad = (data) => {
+    if (Array.isArray(data.talleres_disponibles)) {
+        talleresHoy.value = data.talleres_disponibles;
+    }
+    if (data.fecha_iso) {
+        hoyFecha.value = new Date(data.fecha_iso);
+    } else if (data.fecha) {
+        hoyFecha.value = data.fecha;
+    }
+    if (data.dia) {
+        diaHoy.value = data.dia;
+    }
+};
+
 function buscarCursante() {
   if (!dni.value) return;
   loading.value.buscar = true;
@@ -200,10 +322,12 @@ function buscarCursante() {
     .then(res => {
       cursante.value = res.data.cursante;
       inscripcionesCursante.value = res.data.inscripciones || [];
+      actualizarDisponibilidad(res.data);
     })
     .catch(err => {
       cursante.value = null;
       inscripcionesCursante.value = [];
+      talleresHoy.value = [];
       $q.notify({ type: 'negative', message: err.response?.data?.message || 'Error al buscar cursante' });
     })
     .finally(() => {
@@ -212,16 +336,66 @@ function buscarCursante() {
 }
 
 function cargarTalleresHoy() {
+  if (!cursante.value) return;
   loading.value.talleres = true;
-  window.axios.get('/standard/talleres/hoy')
+  window.axios.get(`/standard/cursantes/buscar/${encodeURIComponent(cursante.value.dni)}`)
     .then(res => {
-      talleresHoy.value = res.data.talleres || [];
-            // Preferir fecha_iso (incluye offset) para evitar desfase horario
-            hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
-      diaHoy.value = res.data.dia || diaHoy.value;
+      if (res.data.cursante) {
+        cursante.value = res.data.cursante;
+      }
+      inscripcionesCursante.value = res.data.inscripciones || inscripcionesCursante.value;
+      actualizarDisponibilidad(res.data);
+    })
+    .catch(() => {
+      $q.notify({ type: 'warning', message: 'No se pudieron cargar los talleres disponibles' });
     })
     .finally(() => {
       loading.value.talleres = false;
+    });
+}
+
+function cargarTodosLosTalleres() {
+  loading.value.todosLosTalleres = true;
+  window.axios.get('/standard/talleres/hoy')
+    .then(res => {
+      todosLosTalleres.value = res.data.talleres || [];
+      // Preferir fecha_iso (incluye offset) para evitar desfase horario
+      hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
+      diaHoy.value = res.data.dia || diaHoy.value;
+    })
+    .catch(() => {
+      $q.notify({ type: 'warning', message: 'No se pudieron cargar los talleres' });
+    })
+    .finally(() => {
+      loading.value.todosLosTalleres = false;
+    });
+}
+
+function mostrarModalTalleres() {
+  modalTalleres.value = true;
+  if (todosLosTalleres.value.length === 0) {
+    cargarTodosLosTalleres();
+  }
+}
+
+function mostrarModalInscripciones() {
+  modalInscripciones.value = true;
+  cargarDetallesInscripciones();
+}
+
+function cargarDetallesInscripciones() {
+  loading.value.detallesInscripciones = true;
+  window.axios.get('/standard/inscripciones/detalles-hoy')
+    .then(res => {
+      console.log('Respuesta detalles:', res.data);
+      detallesInscripciones.value = res.data.detalles || [];
+    })
+    .catch(err => {
+      console.error('Error cargando detalles:', err.response?.data || err.message);
+      $q.notify({ type: 'warning', message: err.response?.data?.message || 'No se pudieron cargar los detalles de inscripciones' });
+    })
+    .finally(() => {
+      loading.value.detallesInscripciones = false;
     });
 }
 
@@ -230,7 +404,7 @@ function cargarInscripcionesHoy() {
   window.axios.get('/standard/inscripciones/hoy')
     .then(res => {
       inscripcionesHoy.value = res.data.inscripciones || [];
-            hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
+      hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
     })
     .finally(() => {
       loading.value.inscripciones = false;
@@ -273,7 +447,7 @@ function inscribir(tallerId) {
 }
 
 onMounted(() => {
-  cargarTalleresHoy();
+  cargarTodosLosTalleres();
   cargarInscripcionesHoy();
   cargarContadores();
   const params = new URLSearchParams(window.location.search);
@@ -297,5 +471,14 @@ onMounted(() => {
 
 .contador-card :deep(.q-card__section) {
   flex-grow: 1;
+}
+
+.clickable {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.clickable:hover {
+  transform: scale(1.02);
 }
 </style>

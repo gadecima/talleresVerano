@@ -97,11 +97,13 @@ Route::middleware(['auth', 'verified', 'role:standard'])->prefix('standard')->na
     // API para gestión de cursantes/talleres/inscripciones
     Route::get('/cursantes', [\App\Http\Controllers\Standard\CursanteController::class, 'index'])->name('cursantes.index');
     Route::post('/cursantes', [\App\Http\Controllers\Standard\CursanteController::class, 'store'])->name('cursantes.store');
+    Route::get('/cursantes/buscar/{dni}', [\App\Http\Controllers\Standard\CursanteController::class, 'buscarPorDni'])->name('cursantes.buscar');
+    Route::get('/cursantes/{cursante}', [\App\Http\Controllers\Standard\CursanteController::class, 'show'])->whereNumber('cursante')->name('cursantes.show');
     Route::put('/cursantes/{cursante}', [\App\Http\Controllers\Standard\CursanteController::class, 'update'])->name('cursantes.update');
     Route::delete('/cursantes/{cursante}', [\App\Http\Controllers\Standard\CursanteController::class, 'destroy'])->name('cursantes.destroy');
-    Route::get('/cursantes/buscar/{dni}', [\App\Http\Controllers\Standard\CursanteController::class, 'buscarPorDni'])->name('cursantes.buscar');
     Route::get('/talleres/hoy', [\App\Http\Controllers\Standard\TallerController::class, 'disponibles'])->name('talleres.hoy');
     Route::get('/inscripciones/hoy', [\App\Http\Controllers\Standard\InscripcionController::class, 'indexHoy'])->name('inscripciones.hoy');
+    Route::get('/inscripciones/detalles-hoy', [StandardUserController::class, 'detallesInscripcionesHoy'])->name('inscripciones.detalles');
     Route::post('/inscripciones', [\App\Http\Controllers\Standard\InscripcionController::class, 'store'])->name('inscripciones.store');
 });
 

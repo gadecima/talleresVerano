@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Standard;
 use App\Http\Controllers\Controller;
 use App\Models\Cursante;
 use App\Models\Inscripcion;
+use App\Models\Taller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
 class CursanteController extends Controller
@@ -20,7 +22,7 @@ class CursanteController extends Controller
         $sortBy = $request->query('sortBy', 'created_at');
         $sortDesc = $request->query('sortDesc', 'true') === 'true';
 
-        $allowedSorts = ['nombre_apellido', 'created_at'];
+        $allowedSorts = ['nombre_apellido', 'dni', 'edad', 'localidad', 'tutor', 'contacto', 'correo', 'created_at'];
         if (!in_array($sortBy, $allowedSorts)) {
             $sortBy = 'created_at';
         }
@@ -31,7 +33,8 @@ class CursanteController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('nombre_apellido', 'like', "%{$search}%")
                   ->orWhere('dni', 'like', "%{$search}%")
-                  ->orWhere('localidad', 'like', "%{$search}%");
+                  ->orWhere('localidad', 'like', "%{$search}%")
+                  ->orWhere('tutor', 'like', "%{$search}%");
             });
         }
 
@@ -56,7 +59,7 @@ class CursanteController extends Controller
             'dni' => ['required', 'string', 'regex:/^[0-9]{8}$/', 'unique:cursantes,dni'],
             'edad' => ['required', 'integer', 'min:0', 'max:120'],
             'localidad' => ['required', 'string', 'max:255'],
-            'tutor' => ['nullable', 'string', 'max:255'],
+            'tutor' => ['required', 'string', 'max:255'],
             'contacto' => ['nullable', 'string', 'max:255'],
             'correo' => ['nullable', 'email', 'max:255', 'unique:cursantes,correo'],
         ],
@@ -95,7 +98,7 @@ class CursanteController extends Controller
             'dni' => ['required', 'string', 'regex:/^[0-9]{8}$/', Rule::unique('cursantes')->ignore($cursante->id)],
             'edad' => ['required', 'integer', 'min:0', 'max:120'],
             'localidad' => ['required', 'string', 'max:255'],
-            'tutor' => ['nullable', 'string', 'max:255'],
+            'tutor' => ['required', 'string', 'max:255'],
             'contacto' => ['nullable', 'string', 'max:255'],
             'correo' => ['nullable', 'email', 'max:255', Rule::unique('cursantes')->ignore($cursante->id)],
         ], [
@@ -117,6 +120,14 @@ class CursanteController extends Controller
     }
 
     /**
+     * Mostrar un cursante puntual.
+     */
+    public function show(Cursante $cursante)
+    {
+        return response()->json($cursante);
+    }
+
+    /**
      * Eliminar cursante.
      */
     public function destroy(Cursante $cursante)
@@ -131,7 +142,8 @@ class CursanteController extends Controller
     public function buscarPorDni(Request $request, string $dni)
     {
         $fecha = $request->query('fecha');
-        $fechaDate = $fecha ? date('Y-m-d', strtotime($fecha)) : date('Y-m-d');
+        $fechaCarbon = $fecha ? Carbon::parse($fecha) : Carbon::today();
+        $fechaDate = $fechaCarbon->toDateString();
 
         $cursante = Cursante::where('dni', $dni)->first();
         if (!$cursante) {
@@ -143,9 +155,43 @@ class CursanteController extends Controller
             ->whereDate('fecha', $fechaDate)
             ->get();
 
+        $diaNombre = $this->diaSemanaNombre($fechaCarbon->dayOfWeekIso);
+
+        // Si ya alcanzó el máximo diario, no hay talleres disponibles.
+        $talleresDisponibles = collect();
+
+        if ($diaNombre && $inscripcionesHoy->count() < 2) {
+            $talleresDisponibles = Taller::with(['dias' => function ($q) use ($diaNombre) {
+                    $q->where('dia_semana', $diaNombre);
+                }])
+                ->whereHas('dias', function ($q) use ($diaNombre) {
+                    $q->where('dia_semana', $diaNombre);
+                })
+                ->where('edad_minima', '<=', $cursante->edad)
+                ->where('edad_maxima', '>=', $cursante->edad)
+                ->whereNotIn('id', $inscripcionesHoy->pluck('taller_id'))
+                ->get()
+                ->values();
+        }
+
         return response()->json([
             'cursante' => $cursante,
             'inscripciones' => $inscripcionesHoy,
+            'talleres_disponibles' => $talleresDisponibles,
+            'dia' => $diaNombre,
+            'fecha' => $fechaDate,
+            'fecha_iso' => $fechaCarbon->toISOString(true),
         ]);
+    }
+
+    private function diaSemanaNombre(int $isoDay): ?string
+    {
+        return [
+            1 => 'lunes',
+            2 => 'martes',
+            3 => 'miercoles',
+            4 => 'jueves',
+            5 => 'viernes',
+        ][$isoDay] ?? null;
     }
 }

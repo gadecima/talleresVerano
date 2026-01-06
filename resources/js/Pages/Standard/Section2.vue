@@ -79,29 +79,23 @@
                                         mask="##########" maxlength="10" />
                                 </div>
 
-                                <div class="col-12 col-md-6">
-                                    <q-input v-model="formEditar.fecha_nacimiento" type="date"
-                                        label="Fecha de nacimiento" outlined :rules="[valReq]" />
+                                <div class="col-12 col-md-3">
+                                    <q-input v-model.number="formEditar.edad" type="number" label="Edad" outlined :rules="[valReq, valEdad]" min="0" max="120" />
                                 </div>
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-9">
                                     <q-select v-model="formEditar.localidad" :options="localidades" label="Localidad"
                                         outlined :rules="[valReq]" emit-value map-options />
                                 </div>
 
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-6">
+                                    <q-input v-model="formEditar.tutor" label="Nombre del tutor" outlined :rules="[valReq]" />
+                                </div>
+                                <div class="col-12 col-md-3">
                                     <q-input v-model="formEditar.contacto" label="Contacto" outlined />
                                 </div>
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-3">
                                     <q-input v-model="formEditar.correo" type="email" label="Correo" outlined
                                         :rules="[valEmail]" />
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    <q-select v-model="formEditar.nivel_educativo" :options="niveles"
-                                        label="Nivel educativo" outlined :rules="[valReq]" emit-value map-options />
-                                </div>
-
-                                <div class="col-12">
-                                    <q-input v-model="formEditar.escuela" label="Escuela" outlined />
                                 </div>
                             </div>
 
@@ -161,16 +155,12 @@ const pagination = ref({
 const columns = [
     { name: 'nombre_apellido', label: 'Nombre y Apellido', field: 'nombre_apellido', align: 'left', sortable: true },
     { name: 'dni', label: 'DNI', field: 'dni', align: 'left', sortable: true },
-    { name: 'fecha_nacimiento', label: 'Fecha Nac.', field: 'fecha_nacimiento', align: 'left', format: (val) => new Date(val).toLocaleDateString('es-ES') },
+    { name: 'edad', label: 'Edad', field: 'edad', align: 'left', sortable: true },
     { name: 'localidad', label: 'Localidad', field: 'localidad', align: 'left' },
-    { name: 'nivel_educativo', label: 'Nivel', field: 'nivel_educativo', align: 'left' },
+    { name: 'tutor', label: 'Tutor', field: 'tutor', align: 'left' },
+    { name: 'contacto', label: 'Contacto', field: 'contacto', align: 'left' },
+    { name: 'correo', label: 'Correo', field: 'correo', align: 'left' },
     { name: 'actions', label: 'Acciones', field: 'actions', align: 'center' },
-];
-
-const niveles = [
-    { label: 'Inicial', value: 'inicial' },
-    { label: 'Primario', value: 'primario' },
-    { label: 'Secundario', value: 'secundario' },
 ];
 
 const localidades = [
@@ -203,12 +193,11 @@ const formEditar = reactive({
     id: null,
     nombre_apellido: '',
     dni: '',
-    fecha_nacimiento: '',
+    edad: null,
     localidad: null,
+    tutor: '',
     contacto: '',
     correo: '',
-    escuela: '',
-    nivel_educativo: null,
 });
 
 function valReq(v) {
@@ -219,6 +208,14 @@ function valDni(v) {
     if (!v) return true;
     if (!/^[0-9]+$/.test(v)) return 'El DNI debe contener solo números';
     return v.length === 8 || 'El DNI debe tener exactamente 8 dígitos';
+}
+
+function valEdad(v) {
+    if (v === null || v === undefined || v === '') return 'Campo obligatorio';
+    const n = Number(v);
+    if (Number.isNaN(n)) return 'Debe ser un número';
+    if (n < 0 || n > 120) return 'Debe estar entre 0 y 120';
+    return true;
 }
 
 function valEmail(v) {
@@ -275,18 +272,25 @@ function editarCursante(cursante) {
     formEditar.id = cursante.id;
     formEditar.nombre_apellido = cursante.nombre_apellido;
     formEditar.dni = cursante.dni;
-    formEditar.fecha_nacimiento = cursante.fecha_nacimiento;
+    formEditar.edad = cursante.edad;
     formEditar.localidad = cursante.localidad;
+    formEditar.tutor = cursante.tutor || '';
     formEditar.contacto = cursante.contacto || '';
     formEditar.correo = cursante.correo || '';
-    formEditar.escuela = cursante.escuela || '';
-    formEditar.nivel_educativo = cursante.nivel_educativo;
     dialogEditar.value = true;
 }
 
 function guardarEdicion() {
     loadingEditar.value = true;
-    const dataToSend = { ...formEditar, dni: formEditar.dni.trim(), correo: formEditar.correo?.trim() || null };
+    const dataToSend = {
+        ...formEditar,
+        edad: formEditar.edad !== null && formEditar.edad !== '' ? Number(formEditar.edad) : null,
+        dni: formEditar.dni.trim(),
+        tutor: formEditar.tutor.trim(),
+        localidad: formEditar.localidad ? formEditar.localidad.toString().trim() : null,
+        contacto: formEditar.contacto?.trim() || '',
+        correo: formEditar.correo?.trim() || null,
+    };
     window.axios.put(`/standard/cursantes/${formEditar.id}`, dataToSend)
         .then(() => {
             $q.notify({ type: 'positive', message: 'Cursante actualizado correctamente' });
