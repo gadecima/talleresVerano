@@ -28,9 +28,10 @@
             font-size: 14px;
         }
         .info-section {
+            margin-top: 5px;
             margin-bottom: 20px;
             background-color: #f8f9fa;
-            padding: 15px;
+            padding: 5px;
             border-radius: 5px;
         }
         .info-section p {
@@ -94,12 +95,15 @@
     </div>
 
     <div class="info-section">
-        <p><strong>Taller:</strong> {{ $taller->nombre }}</p>
-        <p><strong>Descripción:</strong> {{ $taller->descripcion }}</p>
-        <p><strong>Rango de edad:</strong> {{ $taller->edad_minima }} - {{ $taller->edad_maxima }} años</p>
-        <p><strong>Límite de cupos:</strong> {{ $taller->limite_cupos }}</p>
-        <p><strong>Fecha del reporte:</strong> {{ date('d/m/Y', strtotime($fecha)) }}</p>
-        <p><strong>Total de inscriptos:</strong> <span class="badge">{{ $inscripciones->count() }}</span></p>
+        <table style="width: 100%; border: none; background: none;">
+            <tr>
+                <td colspan="2" style="border: none; padding: 5px 0;"><strong>Descripción:</strong> {{ $taller->descripcion }}</td>
+            </tr>
+            <tr>
+                <td style="border: none; padding: 5px 0;"><strong>Rango de edad:</strong> {{ $taller->edad_minima }} - {{ $taller->edad_maxima }} años</td>
+                <td style="border: none; padding: 5px 0;"><strong>Fecha del reporte:</strong> {{ date('d/m/Y', strtotime($fecha)) }}</td>
+            </tr>
+        </table>
     </div>
 
     @if($inscripciones->count() > 0)
@@ -107,11 +111,11 @@
             <thead>
                 <tr>
                     <th style="width: 5%;">#</th>
-                    <th style="width: 35%;">Nombre y Apellido</th>
+                    <th style="width: 40%;">Nombre y Apellido</th>
                     <th style="width: 15%;">DNI</th>
                     <th style="width: 10%;">Edad</th>
                     <th style="width: 25%;">Contacto</th>
-                    <th style="width: 10%;">Hora Inscripción</th>
+                    <th style="width: 5%;">Check</th>
                 </tr>
             </thead>
             <tbody>
@@ -119,10 +123,10 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $inscripcion->cursante->nombre_apellido }}</td>
-                        <td>{{ $inscripcion->cursante->dni }}</td>
-                        <td>{{ $inscripcion->cursante->edad }}</td>
+                        <td style="text-align: center;">{{ $inscripcion->cursante->dni }}</td>
+                        <td style="text-align: center;">{{ $inscripcion->cursante->edad }}</td>
                         <td>{{ $inscripcion->cursante->contacto ?? 'N/A' }}</td>
-                        <td>{{ $inscripcion->created_at->format('H:i') }}</td>
+                        <td> </td>
                     </tr>
                 @endforeach
             </tbody>
