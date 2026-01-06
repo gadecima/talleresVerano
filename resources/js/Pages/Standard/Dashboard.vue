@@ -15,7 +15,7 @@
                         <q-card-section class="q-pa-sm q-pb-xs">
                             <div class="text-subtitle2 q-mb-xs">Cursantes Inscriptos Hoy</div>
                             <div class="text-h4 text-primary">{{ contadores.inscriptosHoy }}</div>
-                            <p class="text-caption text-grey q-my-xs">Inscritos en talleres hoy</p>
+                            <p class="text-caption text-grey q-my-xs">click aquí para ver inscripciones y exportar</p>
                         </q-card-section>
                         <q-linear-progress :value="contadores.totalCursantes > 0 ? contadores.inscriptosHoy / contadores.totalCursantes : 0" color="primary" size="3px" />
                     </q-card>
