@@ -19,13 +19,19 @@ class InscripcionController extends Controller
     public function indexHoy(Request $request)
     {
         $fecha = $request->query('fecha');
+        $tallerId = $request->query('taller_id');
         $hoy = $fecha ? Carbon::parse($fecha) : Carbon::today();
         $fechaDate = $hoy->toDateString();
 
-        $inscripciones = Inscripcion::with(['cursante', 'taller'])
-            ->whereDate('fecha', $fechaDate)
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $query = Inscripcion::with(['cursante', 'taller'])
+            ->whereDate('fecha', $fechaDate);
+
+        // Filtrar por taller si se proporciona
+        if ($tallerId) {
+            $query->where('taller_id', $tallerId);
+        }
+
+        $inscripciones = $query->orderBy('created_at', 'asc')->get();
 
         return response()->json([
             'fecha' => $fechaDate,

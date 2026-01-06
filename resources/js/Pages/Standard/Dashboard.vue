@@ -220,8 +220,16 @@
                         >
                             <template v-slot:body-cell-acciones="props">
                                 <q-td :props="props">
-                                    <q-btn flat dense size="sm" icon="description" color="primary" title="Exportar PDF" class="q-mr-xs" />
-                                    <q-btn flat dense size="sm" icon="table_chart" color="green" title="Exportar Excel" />
+                                    <q-btn
+                                        flat
+                                        dense
+                                        size="sm"
+                                        icon="description"
+                                        color="primary"
+                                        title="Ver inscriptos"
+                                        @click="verInscriptosTaller(props.row)"
+                                        class="q-mr-xs"
+                                    />
                                 </q-td>
                             </template>
                         </q-table>
@@ -230,6 +238,59 @@
                     <q-card-actions align="right">
                         <q-btn flat label="Cerrar" color="primary" @click="modalInscripciones = false" />
                     </q-card-actions>
+                </q-card>
+            </q-dialog>
+
+            <!-- Modal de Inscriptos de un Taller Específico -->
+            <q-dialog v-model="modalInscriptosTaller" maximized>
+                <q-card>
+                    <q-card-section class="row items-center bg-primary text-white">
+                        <div class="col">
+                            <div class="text-h6">{{ tallerSeleccionado?.nombre_taller }}</div>
+                            <div class="text-caption">Inscriptos el día {{ formatDate(hoyFecha) }}</div>
+                        </div>
+                        <q-space />
+                        <q-btn
+                            flat
+                            icon="picture_as_pdf"
+                            label="Exportar PDF"
+                            color="white"
+                            @click="exportarPdf(tallerSeleccionado)"
+                            class="q-mr-sm"
+                        />
+                        <q-btn
+                            flat
+                            icon="table_chart"
+                            label="Exportar Excel"
+                            color="white"
+                            @click="exportarExcel(tallerSeleccionado)"
+                            class="q-mr-sm"
+                        />
+                        <q-btn flat icon="close" color="white" @click="modalInscriptosTaller = false" />
+                    </q-card-section>
+                    <q-separator />
+                    <q-card-section>
+                        <div v-if="inscriptosTaller.length === 0" class="text-center text-grey q-pa-lg">
+                            <q-icon name="info" size="48px" color="grey" />
+                            <p class="q-mt-md">No hay inscriptos en este taller para el día de hoy</p>
+                        </div>
+                        <q-table
+                            v-else
+                            :rows="inscriptosTaller"
+                            :columns="columnsInscriptosTaller"
+                            row-key="id"
+                            dense
+                            flat
+                            :rows-per-page-options="[10, 20, 50, 0]"
+                            :pagination="{ rowsPerPage: 20 }"
+                        >
+                            <template v-slot:body-cell-index="props">
+                                <q-td :props="props">
+                                    {{ props.rowIndex + 1 }}
+                                </q-td>
+                            </template>
+                        </q-table>
+                    </q-card-section>
                 </q-card>
             </q-dialog>
         </q-page>
@@ -274,7 +335,10 @@ const inscripcionesHoy = ref([]);
 const contadores = ref({ inscriptosHoy: 0, nuevosHoy: 0, totalCursantes: 0 });
 const modalTalleres = ref(false);
 const modalInscripciones = ref(false);
+const modalInscriptosTaller = ref(false);
 const detallesInscripciones = ref([]);
+const tallerSeleccionado = ref(null);
+const inscriptosTaller = ref([]);
 
 const loading = ref({ buscar: false, talleres: false, inscripciones: false, inscribir: false, contadores: false, todosLosTalleres: false, detallesInscripciones: false });
 
@@ -282,7 +346,7 @@ const columns = [
   { name: 'cursante', label: 'Cursante', field: row => row.cursante.nombre_apellido, align: 'left' },
   { name: 'dni', label: 'DNI', field: row => row.cursante.dni, align: 'left' },
   { name: 'taller', label: 'Taller', field: row => row.taller.nombre, align: 'left' },
-  { name: 'orientado', label: 'Nivel', field: row => row.taller.orientado, align: 'left' },
+  { name: 'edad', label: 'Edad', field: row => row.cursante.edad, align: 'left' },
   { name: 'hora', label: 'Hora', field: row => new Date(row.created_at).toLocaleTimeString('es-ES'), align: 'left' },
 ];
 
@@ -299,6 +363,15 @@ const columnsDetallesInscripciones = [
   { name: 'espacio', label: 'Espacio', field: 'espacio', align: 'center', sortable: true },
   { name: 'cantidad_inscriptos', label: 'Inscritos', field: 'cantidad_inscriptos', align: 'center', sortable: true },
   { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
+];
+
+const columnsInscriptosTaller = [
+  { name: 'index', label: '#', field: 'index', align: 'center' },
+  { name: 'nombre', label: 'Nombre y Apellido', field: row => row.cursante.nombre_apellido, align: 'left', sortable: true },
+  { name: 'dni', label: 'DNI', field: row => row.cursante.dni, align: 'left', sortable: true },
+  { name: 'edad', label: 'Edad', field: row => row.cursante.edad, align: 'center', sortable: true },
+  { name: 'contacto', label: 'Contacto', field: row => row.cursante.contacto || 'N/A', align: 'left', sortable: false },
+  { name: 'hora', label: 'Hora Inscripción', field: row => new Date(row.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }), align: 'center', sortable: true },
 ];
 
 const actualizarDisponibilidad = (data) => {
@@ -397,6 +470,48 @@ function cargarDetallesInscripciones() {
     .finally(() => {
       loading.value.detallesInscripciones = false;
     });
+}
+
+function verInscriptosTaller(taller) {
+  tallerSeleccionado.value = taller;
+
+  // Cargar los inscriptos del taller
+  window.axios.get(`/standard/inscripciones/hoy?taller_id=${taller.taller_id}`)
+    .then(res => {
+      inscriptosTaller.value = res.data.inscripciones || [];
+      modalInscriptosTaller.value = true;
+    })
+    .catch(err => {
+      $q.notify({ type: 'warning', message: 'Error al cargar inscriptos del taller' });
+    });
+}
+
+function exportarPdf(taller) {
+  if (!taller || !taller.taller_id) {
+    $q.notify({ type: 'warning', message: 'No se pudo identificar el taller' });
+    return;
+  }
+
+  const fechaExport = typeof hoyFecha.value === 'string'
+    ? hoyFecha.value
+    : hoyFecha.value.toISOString().split('T')[0];
+
+  const url = `/standard/talleres/${taller.taller_id}/dia/${fechaExport}/export/pdf`;
+  window.open(url, '_blank');
+}
+
+function exportarExcel(taller) {
+  if (!taller || !taller.taller_id) {
+    $q.notify({ type: 'warning', message: 'No se pudo identificar el taller' });
+    return;
+  }
+
+  const fechaExport = typeof hoyFecha.value === 'string'
+    ? hoyFecha.value
+    : hoyFecha.value.toISOString().split('T')[0];
+
+  const url = `/standard/talleres/${taller.taller_id}/dia/${fechaExport}/export/excel`;
+  window.open(url, '_blank');
 }
 
 function cargarInscripcionesHoy() {

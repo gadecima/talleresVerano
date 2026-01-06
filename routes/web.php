@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\StandardUserController;
 use App\Http\Controllers\ViewerController;
+use App\Http\Controllers\TallerExportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -105,6 +106,10 @@ Route::middleware(['auth', 'verified', 'role:standard'])->prefix('standard')->na
     Route::get('/inscripciones/hoy', [\App\Http\Controllers\Standard\InscripcionController::class, 'indexHoy'])->name('inscripciones.hoy');
     Route::get('/inscripciones/detalles-hoy', [StandardUserController::class, 'detallesInscripcionesHoy'])->name('inscripciones.detalles');
     Route::post('/inscripciones', [\App\Http\Controllers\Standard\InscripcionController::class, 'store'])->name('inscripciones.store');
+
+    // Rutas de exportación
+    Route::get('/talleres/{taller}/dia/{fecha}/export/pdf', [TallerExportController::class, 'exportPdf'])->name('talleres.export.pdf');
+    Route::get('/talleres/{taller}/dia/{fecha}/export/excel', [TallerExportController::class, 'exportExcel'])->name('talleres.export.excel');
 });
 
 // Rutas cortas para Usuario Estándar (sin prefijo)
