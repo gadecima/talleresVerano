@@ -204,14 +204,14 @@
                                 <div class="text-h6">Inscripciones por Taller - Hoy ({{ diaHoy }})</div>
                             </div>
                             <div class="col-auto">
-                              <q-btn
-                                flat
-                                icon="picture_as_pdf"
-                                label="Exportar listado"
-                                @click="exportarListadoPorTaller"
-                                :loading="loading.exportarListado"
-                                class="q-mr-sm"
-                              />
+                                <q-btn
+                                    flat
+                                    icon="picture_as_pdf"
+                                    label="Exportar listado"
+                                    @click="exportarListadoPorTaller"
+                                    :loading="loading.exportarListado"
+                                    class="q-mr-sm"
+                                />
                                 <q-btn flat icon="refresh" label="Actualizar" @click="cargarDetallesInscripciones" :loading="loading.detallesInscripciones" />
                             </div>
                         </div>
@@ -497,16 +497,16 @@ function verInscriptosTaller(taller) {
 function exportarListadoPorTaller() {
   loading.value.exportarListado = true;
 
-  try {
-    const fechaExport = typeof hoyFecha.value === 'string'
-      ? hoyFecha.value
-      : hoyFecha.value.toISOString().split('T')[0];
+  const fechaExport = typeof hoyFecha.value === 'string'
+    ? hoyFecha.value
+    : hoyFecha.value.toISOString().split('T')[0];
 
-    const url = `/standard/inscripciones/export/pdf?fecha=${fechaExport}`;
-    window.open(url, '_blank');
-  } finally {
+  const url = `/standard/inscripciones/export/pdf?fecha=${fechaExport}`;
+  window.open(url, '_blank');
+
+  setTimeout(() => {
     loading.value.exportarListado = false;
-  }
+  }, 500);
 }
 
 function exportarPdf(taller) {
