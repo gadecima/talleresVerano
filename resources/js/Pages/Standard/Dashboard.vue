@@ -204,6 +204,14 @@
                                 <div class="text-h6">Inscripciones por Taller - Hoy ({{ diaHoy }})</div>
                             </div>
                             <div class="col-auto">
+                              <q-btn
+                                flat
+                                icon="picture_as_pdf"
+                                label="Exportar listado"
+                                @click="exportarListadoPorTaller"
+                                :loading="loading.exportarListado"
+                                class="q-mr-sm"
+                              />
                                 <q-btn flat icon="refresh" label="Actualizar" @click="cargarDetallesInscripciones" :loading="loading.detallesInscripciones" />
                             </div>
                         </div>
@@ -340,7 +348,7 @@ const detallesInscripciones = ref([]);
 const tallerSeleccionado = ref(null);
 const inscriptosTaller = ref([]);
 
-const loading = ref({ buscar: false, talleres: false, inscripciones: false, inscribir: false, contadores: false, todosLosTalleres: false, detallesInscripciones: false });
+const loading = ref({ buscar: false, talleres: false, inscripciones: false, inscribir: false, contadores: false, todosLosTalleres: false, detallesInscripciones: false, exportarListado: false });
 
 const columns = [
   { name: 'cursante', label: 'Cursante', field: row => row.cursante.nombre_apellido, align: 'left' },
@@ -484,6 +492,21 @@ function verInscriptosTaller(taller) {
     .catch(err => {
       $q.notify({ type: 'warning', message: 'Error al cargar inscriptos del taller' });
     });
+}
+
+function exportarListadoPorTaller() {
+  loading.value.exportarListado = true;
+
+  try {
+    const fechaExport = typeof hoyFecha.value === 'string'
+      ? hoyFecha.value
+      : hoyFecha.value.toISOString().split('T')[0];
+
+    const url = `/standard/inscripciones/export/pdf?fecha=${fechaExport}`;
+    window.open(url, '_blank');
+  } finally {
+    loading.value.exportarListado = false;
+  }
 }
 
 function exportarPdf(taller) {

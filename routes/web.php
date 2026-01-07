@@ -108,6 +108,7 @@ Route::middleware(['auth', 'verified', 'role:standard'])->prefix('standard')->na
     Route::post('/inscripciones', [\App\Http\Controllers\Standard\InscripcionController::class, 'store'])->name('inscripciones.store');
 
     // Rutas de exportación
+    Route::get('/inscripciones/export/pdf', [TallerExportController::class, 'exportTalleresDiaPdf'])->name('inscripciones.export.pdf');
     Route::get('/talleres/{taller}/dia/{fecha}/export/pdf', [TallerExportController::class, 'exportPdf'])->name('talleres.export.pdf');
     Route::get('/talleres/{taller}/dia/{fecha}/export/excel', [TallerExportController::class, 'exportExcel'])->name('talleres.export.excel');
 });
