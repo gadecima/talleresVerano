@@ -17,7 +17,8 @@
                             <div class="text-h4 text-primary">{{ contadores.inscriptosHoy }}</div>
                             <p class="text-caption text-grey q-my-xs">click aquí para ver inscripciones y exportar</p>
                         </q-card-section>
-                        <q-linear-progress :value="contadores.totalCursantes > 0 ? contadores.inscriptosHoy / contadores.totalCursantes : 0" color="primary" size="3px" />
+                        <q-linear-progress :value="contadores.totalCursantes > 0 ? contadores.inscriptosHoy / contadores.totalCursantes : 0"
+                            color="primary" size="3px" />
                     </q-card>
                 </div>
 
@@ -28,7 +29,8 @@
                             <div class="text-h4 text-secondary">{{ contadores.nuevosHoy }}/{{ contadores.totalCursantes }}</div>
                             <p class="text-caption text-grey q-my-xs">Nuevos de {{ contadores.totalCursantes }} totales</p>
                         </q-card-section>
-                        <q-linear-progress :value="contadores.totalCursantes > 0 ? contadores.nuevosHoy / contadores.totalCursantes : 0" color="secondary" size="3px" />
+                        <q-linear-progress :value="contadores.totalCursantes > 0 ? contadores.nuevosHoy / contadores.totalCursantes : 0"
+                            color="secondary" size="3px" />
                     </q-card>
                 </div>
 
@@ -95,12 +97,14 @@
                                     <div class="text-h6">Talleres disponibles hoy ({{ diaHoy }})</div>
                                 </div>
                                 <div class="col">
-                                    <q-btn flat icon="refresh" label="Actualizar" @click="cargarTalleresHoy" :loading="loading.talleres" class="q-ml-sm"/>
+                                    <q-btn flat icon="refresh" label="Actualizar" @click="cargarTalleresHoy"
+                                        :loading="loading.talleres" class="q-ml-sm"/>
                                 </div>
                             </div>
 
                             <q-banner v-if="talleresHoy.length === 0" class="q-my-md" dense>
-                                {{ cursante ? 'No hay talleres disponibles para este cursante hoy (edad o limite alcanzado).' : 'No hay talleres disponibles para hoy.' }}
+                                {{ cursante ? 'No hay talleres disponibles para este cursante hoy (edad o limite alcanzado).'
+                                    : 'No hay talleres disponibles para hoy.' }}
                             </q-banner>
 
                             <q-list v-else bordered class="q-mt-md">
@@ -141,7 +145,8 @@
                             <div class="text-h6">Inscripciones de hoy ({{ formatDate(hoyFecha) }})</div>
                         </div>
                         <div class="col-auto">
-                            <q-btn flat icon="refresh" label="Actualizar" @click="cargarInscripcionesHoy" :loading="loading.inscripciones"/>
+                            <q-btn flat icon="refresh" label="Actualizar" @click="cargarInscripcionesHoy"
+                                :loading="loading.inscripciones"/>
                         </div>
                     </div>
                     <q-table
@@ -164,7 +169,8 @@
                                 <div class="text-h6">Talleres Disponibles Hoy ({{ diaHoy }})</div>
                             </div>
                             <div class="col-auto">
-                                <q-btn flat icon="refresh" label="Actualizar" @click="cargarTodosLosTalleres" :loading="loading.todosLosTalleres" />
+                                <q-btn flat icon="refresh" label="Actualizar" @click="cargarTodosLosTalleres"
+                                    :loading="loading.todosLosTalleres" />
                             </div>
                         </div>
                     </q-card-section>
@@ -204,15 +210,10 @@
                                 <div class="text-h6">Inscripciones por Taller - Hoy ({{ diaHoy }})</div>
                             </div>
                             <div class="col-auto">
-                                <q-btn
-                                    flat
-                                    icon="picture_as_pdf"
-                                    label="Exportar listado"
-                                    @click="exportarListadoPorTaller"
-                                    :loading="loading.exportarListado"
-                                    class="q-mr-sm"
-                                />
-                                <q-btn flat icon="refresh" label="Actualizar" @click="cargarDetallesInscripciones" :loading="loading.detallesInscripciones" />
+                                <q-btn flat icon="picture_as_pdf" label="Exportar listado" class="q-mr-sm"
+                                    @click="exportarListadoPorTaller" :loading="loading.exportarListado" />
+                                <q-btn flat icon="refresh" label="Actualizar" @click="cargarDetallesInscripciones"
+                                    :loading="loading.detallesInscripciones" />
                             </div>
                         </div>
                     </q-card-section>
@@ -348,38 +349,41 @@ const detallesInscripciones = ref([]);
 const tallerSeleccionado = ref(null);
 const inscriptosTaller = ref([]);
 
-const loading = ref({ buscar: false, talleres: false, inscripciones: false, inscribir: false, contadores: false, todosLosTalleres: false, detallesInscripciones: false, exportarListado: false });
+const loading = ref({
+    buscar: false, talleres: false, inscripciones: false, inscribir: false, contadores: false,
+    todosLosTalleres: false, detallesInscripciones: false, exportarListado: false
+});
 
 const columns = [
-  { name: 'cursante', label: 'Cursante', field: row => row.cursante.nombre_apellido, align: 'left' },
-  { name: 'dni', label: 'DNI', field: row => row.cursante.dni, align: 'left' },
-  { name: 'taller', label: 'Taller', field: row => row.taller.nombre, align: 'left' },
-  { name: 'edad', label: 'Edad', field: row => row.cursante.edad, align: 'left' },
-  { name: 'hora', label: 'Hora', field: row => new Date(row.created_at).toLocaleTimeString('es-ES'), align: 'left' },
+    { name: 'cursante', label: 'Cursante', field: row => row.cursante.nombre_apellido, align: 'left' },
+    { name: 'dni', label: 'DNI', field: row => row.cursante.dni, align: 'left' },
+    { name: 'taller', label: 'Taller', field: row => row.taller.nombre, align: 'left' },
+    { name: 'edad', label: 'Edad', field: row => row.cursante.edad, align: 'left' },
+    { name: 'hora', label: 'Hora', field: row => new Date(row.created_at).toLocaleTimeString('es-ES'), align: 'left' },
 ];
 
 const columnsTalleres = [
-  { name: 'nombre', label: 'Taller', field: 'nombre', align: 'left', sortable: true },
-  { name: 'edad_minima', label: 'Edad Mín', field: 'edad_minima', align: 'center', sortable: true },
-  { name: 'edad_maxima', label: 'Edad Máx', field: 'edad_maxima', align: 'center', sortable: true },
-  { name: 'dias', label: 'Días', field: 'dias', align: 'left' },
-  { name: 'descripcion', label: 'Descripción', field: 'descripcion', align: 'left', sortable: false },
+    { name: 'nombre', label: 'Taller', field: 'nombre', align: 'left', sortable: true },
+    { name: 'edad_minima', label: 'Edad Mín', field: 'edad_minima', align: 'center', sortable: true },
+    { name: 'edad_maxima', label: 'Edad Máx', field: 'edad_maxima', align: 'center', sortable: true },
+    { name: 'dias', label: 'Días', field: 'dias', align: 'left' },
+    { name: 'descripcion', label: 'Descripción', field: 'descripcion', align: 'left', sortable: false },
 ];
 
 const columnsDetallesInscripciones = [
-  { name: 'nombre_taller', label: 'Taller', field: 'nombre_taller', align: 'left', sortable: true },
-  { name: 'espacio', label: 'Espacio', field: 'espacio', align: 'center', sortable: true },
-  { name: 'cantidad_inscriptos', label: 'Inscritos', field: 'cantidad_inscriptos', align: 'center', sortable: true },
-  { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
+    { name: 'nombre_taller', label: 'Taller', field: 'nombre_taller', align: 'left', sortable: true },
+    { name: 'espacio', label: 'Espacio', field: 'espacio', align: 'center', sortable: true },
+    { name: 'cantidad_inscriptos', label: 'Inscritos', field: 'cantidad_inscriptos', align: 'center', sortable: true },
+    { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
 ];
 
 const columnsInscriptosTaller = [
-  { name: 'index', label: '#', field: 'index', align: 'center' },
-  { name: 'nombre', label: 'Nombre y Apellido', field: row => row.cursante.nombre_apellido, align: 'left', sortable: true },
-  { name: 'dni', label: 'DNI', field: row => row.cursante.dni, align: 'left', sortable: true },
-  { name: 'edad', label: 'Edad', field: row => row.cursante.edad, align: 'center', sortable: true },
-  { name: 'contacto', label: 'Contacto', field: row => row.cursante.contacto || 'N/A', align: 'left', sortable: false },
-  { name: 'hora', label: 'Hora Inscripción', field: row => new Date(row.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }), align: 'center', sortable: true },
+    { name: 'index', label: '#', field: 'index', align: 'center' },
+    { name: 'nombre', label: 'Nombre y Apellido', field: row => row.cursante.nombre_apellido, align: 'left', sortable: true },
+    { name: 'dni', label: 'DNI', field: row => row.cursante.dni, align: 'left', sortable: true },
+    { name: 'edad', label: 'Edad', field: row => row.cursante.edad, align: 'center', sortable: true },
+    { name: 'contacto', label: 'Contacto', field: row => row.cursante.contacto || 'N/A', align: 'left', sortable: false },
+    { name: 'hora', label: 'Hora Inscripción', field: row => new Date(row.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }), align: 'center', sortable: true },
 ];
 
 const actualizarDisponibilidad = (data) => {
@@ -397,226 +401,229 @@ const actualizarDisponibilidad = (data) => {
 };
 
 function buscarCursante() {
-  if (!dni.value) return;
-  loading.value.buscar = true;
-  window.axios.get(`/standard/cursantes/buscar/${encodeURIComponent(dni.value)}`)
-    .then(res => {
-      cursante.value = res.data.cursante;
-      inscripcionesCursante.value = res.data.inscripciones || [];
-      actualizarDisponibilidad(res.data);
-    })
-    .catch(err => {
-      cursante.value = null;
-      inscripcionesCursante.value = [];
-      talleresHoy.value = [];
-      $q.notify({ type: 'negative', message: err.response?.data?.message || 'Error al buscar cursante' });
-    })
-    .finally(() => {
-      loading.value.buscar = false;
-    });
+    if (!dni.value) return;
+    loading.value.buscar = true;
+    window.axios.get(`/standard/cursantes/buscar/${encodeURIComponent(dni.value)}`)
+        .then(res => {
+            cursante.value = res.data.cursante;
+            inscripcionesCursante.value = res.data.inscripciones || [];
+            actualizarDisponibilidad(res.data);
+        })
+        .catch(err => {
+            cursante.value = null;
+            inscripcionesCursante.value = [];
+            talleresHoy.value = [];
+            $q.notify({ type: 'negative', message: err.response?.data?.message || 'Error al buscar cursante' });
+        })
+        .finally(() => {
+            loading.value.buscar = false;
+        });
 }
 
 function cargarTalleresHoy() {
-  if (!cursante.value) return;
-  loading.value.talleres = true;
-  window.axios.get(`/standard/cursantes/buscar/${encodeURIComponent(cursante.value.dni)}`)
-    .then(res => {
-      if (res.data.cursante) {
-        cursante.value = res.data.cursante;
-      }
-      inscripcionesCursante.value = res.data.inscripciones || inscripcionesCursante.value;
-      actualizarDisponibilidad(res.data);
-    })
-    .catch(() => {
-      $q.notify({ type: 'warning', message: 'No se pudieron cargar los talleres disponibles' });
-    })
-    .finally(() => {
-      loading.value.talleres = false;
-    });
+    if (!cursante.value) return;
+    loading.value.talleres = true;
+    window.axios.get(`/standard/cursantes/buscar/${encodeURIComponent(cursante.value.dni)}`)
+        .then(res => {
+            if (res.data.cursante) {
+                cursante.value = res.data.cursante;
+            }
+            inscripcionesCursante.value = res.data.inscripciones || inscripcionesCursante.value;
+            actualizarDisponibilidad(res.data);
+        })
+        .catch(() => {
+            $q.notify({ type: 'warning', message: 'No se pudieron cargar los talleres disponibles' });
+        })
+        .finally(() => {
+            loading.value.talleres = false;
+        });
 }
 
 function cargarTodosLosTalleres() {
-  loading.value.todosLosTalleres = true;
-  window.axios.get('/standard/talleres/hoy')
-    .then(res => {
-      todosLosTalleres.value = res.data.talleres || [];
-      // Preferir fecha_iso (incluye offset) para evitar desfase horario
-      hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
-      diaHoy.value = res.data.dia || diaHoy.value;
-    })
-    .catch(() => {
-      $q.notify({ type: 'warning', message: 'No se pudieron cargar los talleres' });
-    })
-    .finally(() => {
-      loading.value.todosLosTalleres = false;
-    });
+    loading.value.todosLosTalleres = true;
+    window.axios.get('/standard/talleres/hoy')
+        .then(res => {
+            todosLosTalleres.value = res.data.talleres || [];
+            // Preferir fecha_iso (incluye offset) para evitar desfase horario
+            hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
+            diaHoy.value = res.data.dia || diaHoy.value;
+        })
+        .catch(() => {
+            $q.notify({ type: 'warning', message: 'No se pudieron cargar los talleres' });
+        })
+        .finally(() => {
+            loading.value.todosLosTalleres = false;
+        });
 }
 
 function mostrarModalTalleres() {
-  modalTalleres.value = true;
-  if (todosLosTalleres.value.length === 0) {
-    cargarTodosLosTalleres();
-  }
+    modalTalleres.value = true;
+    if (todosLosTalleres.value.length === 0) {
+        cargarTodosLosTalleres();
+    }
 }
 
 function mostrarModalInscripciones() {
-  modalInscripciones.value = true;
-  cargarDetallesInscripciones();
+    modalInscripciones.value = true;
+    cargarDetallesInscripciones();
 }
 
 function cargarDetallesInscripciones() {
-  loading.value.detallesInscripciones = true;
-  window.axios.get('/standard/inscripciones/detalles-hoy')
-    .then(res => {
-      console.log('Respuesta detalles:', res.data);
-      detallesInscripciones.value = res.data.detalles || [];
-    })
-    .catch(err => {
-      console.error('Error cargando detalles:', err.response?.data || err.message);
-      $q.notify({ type: 'warning', message: err.response?.data?.message || 'No se pudieron cargar los detalles de inscripciones' });
-    })
-    .finally(() => {
-      loading.value.detallesInscripciones = false;
-    });
+    loading.value.detallesInscripciones = true;
+    window.axios.get('/standard/inscripciones/detalles-hoy')
+        .then(res => {
+            console.log('Respuesta detalles:', res.data);
+            detallesInscripciones.value = res.data.detalles || [];
+        })
+        .catch(err => {
+            console.error('Error cargando detalles:', err.response?.data || err.message);
+            $q.notify({
+                type: 'warning', message: err.response?.data?.message ||
+                    'No se pudieron cargar los detalles de inscripciones'
+            });
+        })
+        .finally(() => {
+            loading.value.detallesInscripciones = false;
+        });
 }
 
 function verInscriptosTaller(taller) {
-  tallerSeleccionado.value = taller;
+    tallerSeleccionado.value = taller;
 
-  // Cargar los inscriptos del taller
-  window.axios.get(`/standard/inscripciones/hoy?taller_id=${taller.taller_id}`)
-    .then(res => {
-      inscriptosTaller.value = res.data.inscripciones || [];
-      modalInscriptosTaller.value = true;
-    })
-    .catch(err => {
-      $q.notify({ type: 'warning', message: 'Error al cargar inscriptos del taller' });
-    });
+    // Cargar los inscriptos del taller
+    window.axios.get(`/standard/inscripciones/hoy?taller_id=${taller.taller_id}`)
+        .then(res => {
+            inscriptosTaller.value = res.data.inscripciones || [];
+            modalInscriptosTaller.value = true;
+        })
+        .catch(err => {
+            $q.notify({ type: 'warning', message: 'Error al cargar inscriptos del taller' });
+        });
 }
 
 function exportarListadoPorTaller() {
-  loading.value.exportarListado = true;
+    loading.value.exportarListado = true;
 
-  const fechaExport = typeof hoyFecha.value === 'string'
-    ? hoyFecha.value
-    : hoyFecha.value.toISOString().split('T')[0];
+    const fechaExport = typeof hoyFecha.value === 'string'
+        ? hoyFecha.value
+        : hoyFecha.value.toISOString().split('T')[0];
 
-  const url = `/standard/inscripciones/export/pdf?fecha=${fechaExport}`;
-  window.open(url, '_blank');
+    const url = `/standard/inscripciones/export/pdf?fecha=${fechaExport}`;
+    window.open(url, '_blank');
 
-  setTimeout(() => {
-    loading.value.exportarListado = false;
-  }, 500);
+    setTimeout(() => {
+        loading.value.exportarListado = false;
+    }, 500);
 }
 
 function exportarPdf(taller) {
-  if (!taller || !taller.taller_id) {
-    $q.notify({ type: 'warning', message: 'No se pudo identificar el taller' });
-    return;
-  }
+    if (!taller || !taller.taller_id) {
+        $q.notify({ type: 'warning', message: 'No se pudo identificar el taller' });
+        return;
+    }
 
-  const fechaExport = typeof hoyFecha.value === 'string'
-    ? hoyFecha.value
-    : hoyFecha.value.toISOString().split('T')[0];
+    const fechaExport = typeof hoyFecha.value === 'string'
+        ? hoyFecha.value
+        : hoyFecha.value.toISOString().split('T')[0];
 
-  const url = `/standard/talleres/${taller.taller_id}/dia/${fechaExport}/export/pdf`;
-  window.open(url, '_blank');
+    const url = `/standard/talleres/${taller.taller_id}/dia/${fechaExport}/export/pdf`;
+    window.open(url, '_blank');
 }
 
 function exportarExcel(taller) {
-  if (!taller || !taller.taller_id) {
-    $q.notify({ type: 'warning', message: 'No se pudo identificar el taller' });
-    return;
-  }
+    if (!taller || !taller.taller_id) {
+        $q.notify({ type: 'warning', message: 'No se pudo identificar el taller' });
+        return;
+    }
 
-  const fechaExport = typeof hoyFecha.value === 'string'
-    ? hoyFecha.value
-    : hoyFecha.value.toISOString().split('T')[0];
+    const fechaExport = typeof hoyFecha.value === 'string'
+        ? hoyFecha.value
+        : hoyFecha.value.toISOString().split('T')[0];
 
-  const url = `/standard/talleres/${taller.taller_id}/dia/${fechaExport}/export/excel`;
-  window.open(url, '_blank');
+    const url = `/standard/talleres/${taller.taller_id}/dia/${fechaExport}/export/excel`;
+    window.open(url, '_blank');
 }
 
 function cargarInscripcionesHoy() {
-  loading.value.inscripciones = true;
-  window.axios.get('/standard/inscripciones/hoy')
-    .then(res => {
-      inscripcionesHoy.value = res.data.inscripciones || [];
-      hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
-    })
-    .finally(() => {
-      loading.value.inscripciones = false;
-    });
+    loading.value.inscripciones = true;
+    window.axios.get('/standard/inscripciones/hoy')
+        .then(res => {
+            inscripcionesHoy.value = res.data.inscripciones || [];
+            hoyFecha.value = res.data.fecha_iso ? new Date(res.data.fecha_iso) : (res.data.fecha || hoyFecha.value);
+        })
+        .finally(() => {
+            loading.value.inscripciones = false;
+        });
 }
 
 function cargarContadores() {
-  loading.value.contadores = true;
-  window.axios.get('/standard/contadores')
-    .then(res => {
-      contadores.value = res.data;
-    })
-    .catch(err => {
-      $q.notify({ type: 'warning', message: 'Error al cargar los contadores' });
-    })
-    .finally(() => {
-      loading.value.contadores = false;
-    });
+    loading.value.contadores = true;
+    window.axios.get('/standard/contadores')
+        .then(res => {
+            contadores.value = res.data;
+        })
+        .catch(err => {
+            $q.notify({ type: 'warning', message: 'Error al cargar los contadores' });
+        })
+        .finally(() => {
+            loading.value.contadores = false;
+        });
 }
 
 function inscribir(tallerId) {
-  if (!cursante.value) return;
-  loading.value.inscribir = true;
-  window.axios.post('/standard/inscripciones', {
-    dni: cursante.value.dni,
-    taller_id: tallerId,
-  })
-    .then(() => {
-      $q.notify({ type: 'positive', message: 'Inscripción realizada' });
-      buscarCursante();
-      cargarInscripcionesHoy();
-      cargarContadores();
+    if (!cursante.value) return;
+    loading.value.inscribir = true;
+    window.axios.post('/standard/inscripciones', {
+        dni: cursante.value.dni,
+        taller_id: tallerId,
     })
-    .catch(err => {
-      $q.notify({ type: 'warning', message: err.response?.data?.message || 'No se pudo inscribir' });
-    })
-    .finally(() => {
-      loading.value.inscribir = false;
-    });
+        .then(() => {
+            $q.notify({ type: 'positive', message: 'Inscripción realizada' });
+            buscarCursante();
+            cargarInscripcionesHoy();
+            cargarContadores();
+        })
+        .catch(err => {
+            $q.notify({ type: 'warning', message: err.response?.data?.message || 'No se pudo inscribir' });
+        })
+        .finally(() => {
+            loading.value.inscribir = false;
+        });
 }
 
 onMounted(() => {
-  cargarTodosLosTalleres();
-  cargarInscripcionesHoy();
-  cargarContadores();
-  const params = new URLSearchParams(window.location.search);
-  const dniParam = params.get('dni');
-  if (dniParam) {
-    dni.value = dniParam;
-    buscarCursante();
-    $q.notify({ type: 'info', message: 'Búsqueda precargada por DNI' });
-  }
+    cargarTodosLosTalleres();
+    cargarInscripcionesHoy();
+    cargarContadores();
+    const params = new URLSearchParams(window.location.search);
+    const dniParam = params.get('dni');
+    if (dniParam) {
+        dni.value = dniParam;
+        buscarCursante();
+        $q.notify({ type: 'info', message: 'Búsqueda precargada por DNI' });
+    }
 });
 </script>
 
 <style scoped>
 .contador-card {
-  height: auto;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    height: auto;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .contador-card :deep(.q-card__section) {
-  flex-grow: 1;
+    flex-grow: 1;
 }
 
 .clickable {
-  cursor: pointer;
-  transition: transform 0.2s;
+    cursor: pointer;
+    transition: transform 0.2s;
 }
 
 .clickable:hover {
-  transform: scale(1.02);
+    transform: scale(1.02);
 }
 </style>
