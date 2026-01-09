@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Standard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Taller;
+use App\Models\Inscripcion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -32,7 +33,17 @@ class TallerController extends Controller
             $q->where('dia_semana', $diaNombre);
         }])->get()->filter(function ($taller) use ($diaNombre) {
             return $taller->dias->where('dia_semana', $diaNombre)->count() > 0;
-        })->values();
+        })->values()->map(function ($taller) use ($carbon) {
+            // Anexar información de cupos del día
+            $inscriptos = Inscripcion::where('taller_id', $taller->id)
+                ->whereDate('fecha', $carbon->toDateString())
+                ->count();
+            $taller->inscriptos_en_fecha = $inscriptos;
+            $taller->cupos = $taller->cupos ?? 0;
+            $taller->cupos_restantes = max(0, $taller->cupos - $inscriptos);
+            $taller->completo = $taller->cupos_restantes <= 0;
+            return $taller;
+        });
 
         return response()->json([
             'fecha' => $carbon->toDateString(),

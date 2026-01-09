@@ -50,9 +50,10 @@ class TallerController extends Controller
             'edad_maxima' => ['required', 'integer', 'gte:edad_minima', 'max:120'],
             'espacio_fisico' => ['nullable', 'string', 'max:120'],
             'descripcion' => ['nullable', 'string'],
+            'disponibilidad' => ['required', 'in:0,1'],
             'dias' => ['required', 'array', 'min:1'],
             'dias.*' => ['required', Rule::in(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'])],
-            //'cupos' => ['required', 'integer', 'min:1', 'max:65535'],
+            'cupos' => ['required', 'integer', 'min:1', 'max:65535'],
             //'responsable' => ['required', 'string', 'max:120'],
             //'orientado' => [ Rule::in(['inicial', 'primario', 'secundario', 'indefinido'])],
         ]);
@@ -64,7 +65,8 @@ class TallerController extends Controller
             'edad_maxima' => $data['edad_maxima'],
             'espacio_fisico' => $data['espacio_fisico'] ?? null,
             'descripcion' => $data['descripcion'] ?? null,
-            //'cupos' => $data['cupos'],
+            'disponibilidad' => $data['disponibilidad'],
+            'cupos' => $data['cupos'],
             //'responsable' => ucwords(strtolower(trim($data['responsable']))),
             //'orientado' => strtolower(trim($data['orientado'])),
         ];
@@ -90,9 +92,10 @@ class TallerController extends Controller
             'edad_maxima' => ['required', 'integer', 'gte:edad_minima', 'max:120'],
             'espacio_fisico' => ['nullable', 'string', 'max:120'],
             'descripcion' => ['nullable', 'string'],
+            'disponibilidad' => ['required', 'in:0,1'],
             'dias' => ['required', 'array', 'min:1'],
             'dias.*' => ['required', Rule::in(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'])],
-            //'cupos' => ['integer', 'min:1', 'max:65535'],
+            'cupos' => ['integer', 'min:1', 'max:65535'],
             //'responsable' => ['string', 'max:120'],
             //'orientado' => [ Rule::in(['inicial', 'primario', 'secundario', 'indefinido'])],
         ]);
@@ -105,7 +108,8 @@ class TallerController extends Controller
             'descripcion' => $data['descripcion'] ?? null,
             //'responsable' => ucwords(strtolower(trim($data['responsable']))),
             //'orientado' => strtolower(trim($data['orientado'])),
-            //'cupos' => $data['cupos'],
+            'cupos' => $data['cupos'] ?? $taller->cupos,
+            'disponibilidad' => $data['disponibilidad'],
         ];
 
         $taller->update($tallerData);

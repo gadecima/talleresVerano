@@ -161,7 +161,8 @@ class CursanteController extends Controller
         $talleresDisponibles = collect();
 
         if ($diaNombre && $inscripcionesHoy->count() < 2) {
-            $talleresDisponibles = Taller::with(['dias' => function ($q) use ($diaNombre) {
+            // Candidatos por día y edad
+            $candidatos = Taller::with(['dias' => function ($q) use ($diaNombre) {
                     $q->where('dia_semana', $diaNombre);
                 }])
                 ->whereHas('dias', function ($q) use ($diaNombre) {
@@ -169,9 +170,27 @@ class CursanteController extends Controller
                 })
                 ->where('edad_minima', '<=', $cursante->edad)
                 ->where('edad_maxima', '>=', $cursante->edad)
+                ->where('disponibilidad', 1)
                 ->whereNotIn('id', $inscripcionesHoy->pluck('taller_id'))
-                ->get()
-                ->values();
+                ->get();
+
+            // Filtrar por cupos disponibles ese día y agregar metadatos
+            $talleresDisponibles = $candidatos->filter(function ($taller) use ($fechaDate) {
+                $inscriptos = Inscripcion::where('taller_id', $taller->id)
+                    ->whereDate('fecha', $fechaDate)
+                    ->count();
+                return $inscriptos < ($taller->cupos ?? 0);
+            })->values()->map(function ($taller) use ($fechaDate) {
+                $inscriptos = Inscripcion::where('taller_id', $taller->id)
+                    ->whereDate('fecha', $fechaDate)
+                    ->count();
+                // Añadir campos de ayuda para el frontend
+                $taller->inscriptos_en_fecha = $inscriptos;
+                $taller->cupos = $taller->cupos ?? 0;
+                $taller->cupos_restantes = max(0, $taller->cupos - $inscriptos);
+                $taller->completo = $taller->cupos_restantes <= 0;
+                return $taller;
+            });
         }
 
         return response()->json([

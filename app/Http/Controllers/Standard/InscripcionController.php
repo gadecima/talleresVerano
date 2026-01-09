@@ -31,7 +31,7 @@ class InscripcionController extends Controller
             $query->where('taller_id', $tallerId);
         }
 
-        $inscripciones = $query->orderBy('created_at', 'asc')->get();
+        $inscripciones = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'fecha' => $fechaDate,
@@ -98,6 +98,14 @@ class InscripcionController extends Controller
             return response()->json(['message' => 'Máximo dos talleres por día'], 422);
         }
 
+        // Regla: no superar cupos del taller para ese día
+        $inscriptosEnDia = Inscripcion::where('taller_id', $taller->id)
+            ->whereDate('fecha', $fecha)
+            ->count();
+        if ($inscriptosEnDia >= ($taller->cupos ?? 0)) {
+            return response()->json(['message' => 'No hay cupos disponibles para ese día en este taller'], 422);
+        }
+
         $inscripcion = Inscripcion::create([
             'cursante_id' => $cursante->id,
             'taller_id' => $taller->id,
@@ -105,5 +113,24 @@ class InscripcionController extends Controller
         ]);
 
         return response()->json($inscripcion->load('taller'), 201);
+    }
+
+    /**
+     * Eliminar una inscripción (des-inscribir cursante)
+     */
+    public function destroy($id)
+    {
+        $inscripcion = Inscripcion::find($id);
+
+        if (!$inscripcion) {
+            return response()->json(['message' => 'Inscripción no encontrada'], 404);
+        }
+
+        $inscripcion->delete();
+
+        return response()->json([
+            'message' => 'Inscripción eliminada exitosamente',
+            'inscripcion_id' => $id
+        ], 200);
     }
 }

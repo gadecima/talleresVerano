@@ -34,26 +34,13 @@
                     </div>
 
                     <q-table
-                        :rows="talleres"
-                        :columns="columns"
-                        row-key="id"
-                        v-model:pagination="pagination"
-                        @request="onRequest"
-                        :loading="loading"
-                        flat
-                        bordered
-                    >
+                        :rows="talleres" :columns="columns" row-key="id" v-model:pagination="pagination"
+                        @request="onRequest" :loading="loading" flat bordered >
                         <template v-slot:body-cell-dias="props">
                             <q-td :props="props">
                                 <q-chip
-                                    v-for="dia in props.row.dias"
-                                    :key="dia.id"
-                                    size="sm"
-                                    color="primary"
-                                    text-color="white"
-                                    dense
-                                    class="q-ma-xs"
-                                >
+                                    v-for="dia in props.row.dias" :key="dia.id"
+                                    size="sm" color="primary" text-color="white" dense class="q-ma-xs">
                                     {{ dia.dia_semana.charAt(0).toUpperCase() + dia.dia_semana.slice(1) }}
                                 </q-chip>
                                 <span v-if="!props.row.dias || props.row.dias.length === 0" class="text-grey">
@@ -63,9 +50,17 @@
                         </template>
                         <template v-slot:body-cell-descripcion="props">
                             <q-td :props="props" style="max-width: 300px">
-                                <div class="ellipsis" style="white-space: normal; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                <div class="ellipsis" style="white-space: normal; overflow: hidden;
+                                    text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
                                     {{ props.row.descripcion || 'Sin descripción' }}
                                 </div>
+                            </q-td>
+                        </template>
+                        <template v-slot:body-cell-disponibilidad="props">
+                            <q-td :props="props" style="max-width: 300px">
+                                <q-badge :color="(props.row.disponibilidad ? 'positive' : 'negative')" class="q-ml-xs">
+                                    {{ props.row.disponibilidad ? 'Disponible' : 'No disponible' }}
+                                </q-badge>
                             </q-td>
                         </template>
                         <template v-slot:body-cell-actions="props">
@@ -116,6 +111,17 @@
                                 <div class="col-12">
                                     <q-input v-model="formCrear.descripcion" label="Descripción" type="textarea" outlined />
                                 </div>
+                                <div class="col-12 col-md-6">
+                                    <q-input v-model.number="formCrear.cupos" label="Cupos" type="number" outlined
+                                    :rules="[valReq]" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <q-checkbox
+                                        v-model="formCrear.disponibilidad"
+                                        :true-value="1" :false-value="0"
+                                        label="Disponible para inscripciones"
+                                    />
+                                </div>
                                 <div class="col-12">
                                     <q-select
                                         v-model="formCrear.dias"
@@ -131,10 +137,6 @@
                                 </div>
                                 <!--
                                 <div class="col-12 col-md-6">
-                                    <q-input v-model.number="formCrear.cupos" label="Cupos" type="number" outlined
-                                    :rules="[valReq]" />
-                                </div>
-                                <div class="col-12 col-md-6">
                                     <q-input v-model="formCrear.responsable" label="Responsable"
                                         outlined :rules="[valReq]" />
                                 </div>
@@ -146,6 +148,7 @@
                                     />
                                 </div>
                                 -->
+
                             </div>
 
                             <div class="row items-center q-mt-md">
@@ -193,21 +196,25 @@
                                 </div>
                                 <div class="col-12">
                                     <q-select
-                                        v-model="formEditar.dias"
-                                        :options="diasOptions"
-                                        emit-value
-                                        map-options
-                                        multiple
-                                        label="Días de la semana"
-                                        outlined
-                                        :rules="[valReqArray]"
+                                        v-model="formEditar.dias" :options="diasOptions"
+                                        emit-value map-options multiple outlined
+                                        label="Días de la semana" :rules="[valReqArray]"
                                         hint="Selecciona uno o más días"
                                     />
                                 </div>
-                                <!-- <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-6">
                                     <q-input v-model.number="formEditar.cupos" label="Cupos" type="number" outlined
                                         :rules="[valReq]" />
                                 </div>
+                                <div class="col-12 col-md-6">
+                                    <q-checkbox
+                                        v-model="formEditar.disponibilidad"
+                                        :true-value="1"
+                                        :false-value="0"
+                                        label="Disponible para inscripciones"
+                                    />
+                                </div>
+                                <!--
                                 <div class="col-12 col-md-6">
                                     <q-input v-model="formEditar.responsable" label="Responsable" outlined
                                         :rules="[valReq]" />
@@ -217,7 +224,8 @@
                                         v-model="formEditar.orientado" :options="orientadoOptions"
                                         emit-value map-options label="Orientado a" outlined :rules="[valReq]"
                                     />
-                                </div> -->
+                                </div>
+                                -->
                             </div>
 
                             <div class="row items-center q-mt-md">
@@ -271,15 +279,16 @@ const pagination = ref({
     page: 1, rowsPerPage: 15, rowsNumber: 0,
 });
 
-const columns = [
+    const columns = [
     { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left', sortable: true },
     { name: 'espacio_fisico', label: 'Espacio Físico', field: 'espacio_fisico', align: 'left', sortable: true },
     { name: 'edad_minima', label: 'Edad Mín', field: 'edad_minima', align: 'center' },
     { name: 'edad_maxima', label: 'Edad Máx', field: 'edad_maxima', align: 'center' },
     { name: 'dias', label: 'Días', field: 'dias', align: 'left' },
     { name: 'descripcion', label: 'Descripción', field: 'descripcion', align: 'left', style: 'max-width: 300px' },
+    { name: 'cupos', label: 'Cupos', field: 'cupos', align: 'center' },
+    { name: 'disponibilidad', label: 'Disponibilidad', field: 'disponibilidad', align: 'center', sortable: false },
     { name: 'actions', label: 'Acciones', field: 'actions', align: 'center' },
-    // { name: 'cupos', label: 'Cupos', field: 'cupos', align: 'center' },
     // { name: 'orientado', label: 'Orientado a', field: 'orientado', align: 'left', sortable: true, format: (val) => val ? (val.charAt(0).toUpperCase() + val.slice(1)) : '' },
     // { name: 'responsable', label: 'Responsable', field: 'responsable', align: 'left', sortable: true },
 ];
@@ -316,6 +325,7 @@ const formCrear = reactive({
     cupos: null,
     orientado: null,
     dias: [],
+    disponibilidad: 1,
 });
 
 const formEditar = reactive({
@@ -329,6 +339,7 @@ const formEditar = reactive({
     cupos: null,
     orientado: null,
     dias: [],
+    disponibilidad: 1,
 });
 
 function valReq(v) {
@@ -391,8 +402,8 @@ function abrirDialogoCrear() {
     formCrear.espacio_fisico = '';
     formCrear.descripcion = '';
     formCrear.dias = [];
-    // formCrear.cupos = null;
-    // formCrear.orientado = '';
+    formCrear.cupos = null;
+    formCrear.disponibilidad = 1;
     dialogCrear.value = true;
 }
 
@@ -430,6 +441,7 @@ function editarTaller(taller) {
     formEditar.cupos = taller.cupos;
     formEditar.orientado = taller.orientado;
     formEditar.dias = taller.dias ? taller.dias.map(d => d.dia_semana) : [];
+    formEditar.disponibilidad = typeof taller.disponibilidad === 'number' ? taller.disponibilidad : (taller.disponibilidad ? 1 : 0);
     dialogEditar.value = true;
 }
 

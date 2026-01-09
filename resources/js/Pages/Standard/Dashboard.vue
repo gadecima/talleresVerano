@@ -113,10 +113,14 @@
                                         <q-item-label>{{ t.nombre }}</q-item-label>
                                         <q-item-label caption>
                                             Edad: {{ t.edad_minima }} - {{ t.edad_maxima }} · Descripción: {{ t.descripcion }}
+                                            <br/>
+                                            Cupos: {{ t.inscriptos_en_fecha ?? 0 }} / {{ t.cupos ?? 'N/A' }}
                                         </q-item-label>
                                     </q-item-section>
                                     <q-item-section side>
-                                        <q-btn color="secondary" label="Inscribir" :disable="!cursante" @click="inscribir(t.id)"/>
+                                        <q-btn color="secondary" label="Inscribir"
+                                            :disable="!cursante || t.completo === true"
+                                            @click="inscribir(t.id)"/>
                                     </q-item-section>
                                 </q-item>
                             </q-list>
@@ -149,14 +153,17 @@
                                 :loading="loading.inscripciones"/>
                         </div>
                     </div>
-                    <q-table
-                        :rows="inscripcionesHoy"
-                        :columns="columns"
-                        row-key="id"
-                        dense
-                        flat
-                        class="q-mt-md"
-                    />
+                    <q-table :rows="inscripcionesHoy" :columns="columns"
+                        row-key="id" dense flat class="q-mt-md">
+                        <template v-slot:body-cell-acciones="props">
+                            <q-td :props="props">
+                                <q-btn
+                                    flat dense size="sm" icon="close" color="negative"
+                                    title="Eliminar inscripción" @click="desinscribir(props.row)"
+                                />
+                            </q-td>
+                        </template>
+                    </q-table>
                 </q-card-section>
             </q-card>
 
@@ -177,18 +184,19 @@
                     <q-separator />
                     <q-card-section class="q-pt-none">
                         <q-table
-                            :rows="todosLosTalleres"
-                            :columns="columnsTalleres"
-                            row-key="id"
-                            dense
-                            flat
-                            :rows-per-page-options="[10, 20, 50]"
-                            class="q-mt-md"
-                        >
+                            :rows="todosLosTalleres" :columns="columnsTalleres"
+                            row-key="id" dense flat class="q-mt-md" :rows-per-page-options="[10, 20, 50]" >
                             <template v-slot:body-cell-dias="props">
                                 <q-td :props="props">
                                     <q-badge v-for="dia in props.row.dias" :key="dia.id" color="primary" class="q-mr-xs">
                                         {{ dia.dia_semana }}
+                                    </q-badge>
+                                </q-td>
+                            </template>
+                            <template v-slot:body-cell-cupos="props">
+                                <q-td :props="props" >
+                                    <q-badge :color="(props.row.completo ? 'negative' : 'positive')" class="q-ml-xs">
+                                        {{ (props.row.inscriptos_en_fecha ?? 0) }} / {{ (props.row.cupos ?? 'N/A') }}
                                     </q-badge>
                                 </q-td>
                             </template>
@@ -220,24 +228,14 @@
                     <q-separator />
                     <q-card-section class="q-pt-none">
                         <q-table
-                            :rows="detallesInscripciones"
-                            :columns="columnsDetallesInscripciones"
-                            row-key="taller_id"
-                            dense
-                            flat
-                            class="q-mt-md"
-                        >
+                            :rows="detallesInscripciones" :columns="columnsDetallesInscripciones"
+                            row-key="taller_id" dense flat class="q-mt-md" >
                             <template v-slot:body-cell-acciones="props">
                                 <q-td :props="props">
                                     <q-btn
-                                        flat
-                                        dense
-                                        size="sm"
-                                        icon="description"
-                                        color="primary"
-                                        title="Ver inscriptos"
+                                        flat dense size="sm" icon="description" color="primary"
+                                        title="Ver inscriptos" class="q-mr-xs"
                                         @click="verInscriptosTaller(props.row)"
-                                        class="q-mr-xs"
                                     />
                                 </q-td>
                             </template>
@@ -260,20 +258,12 @@
                         </div>
                         <q-space />
                         <q-btn
-                            flat
-                            icon="picture_as_pdf"
-                            label="Exportar PDF"
-                            color="white"
+                            flat icon="picture_as_pdf" label="Exportar PDF" color="white" class="q-mr-sm"
                             @click="exportarPdf(tallerSeleccionado)"
-                            class="q-mr-sm"
                         />
                         <q-btn
-                            flat
-                            icon="table_chart"
-                            label="Exportar Excel"
-                            color="white"
+                            flat icon="table_chart" label="Exportar Excel" color="white" class="q-mr-sm"
                             @click="exportarExcel(tallerSeleccionado)"
-                            class="q-mr-sm"
                         />
                         <q-btn flat icon="close" color="white" @click="modalInscriptosTaller = false" />
                     </q-card-section>
@@ -284,15 +274,8 @@
                             <p class="q-mt-md">No hay inscriptos en este taller para el día de hoy</p>
                         </div>
                         <q-table
-                            v-else
-                            :rows="inscriptosTaller"
-                            :columns="columnsInscriptosTaller"
-                            row-key="id"
-                            dense
-                            flat
-                            :rows-per-page-options="[10, 20, 50, 0]"
-                            :pagination="{ rowsPerPage: 20 }"
-                        >
+                            v-else :rows="inscriptosTaller" :columns="columnsInscriptosTaller" row-key="id" dense flat
+                            :rows-per-page-options="[10, 20, 50, 0]" :pagination="{ rowsPerPage: 20 }" >
                             <template v-slot:body-cell-index="props">
                                 <q-td :props="props">
                                     {{ props.rowIndex + 1 }}
@@ -360,6 +343,7 @@ const columns = [
     { name: 'taller', label: 'Taller', field: row => row.taller.nombre, align: 'left' },
     { name: 'edad', label: 'Edad', field: row => row.cursante.edad, align: 'left' },
     { name: 'hora', label: 'Hora', field: row => new Date(row.created_at).toLocaleTimeString('es-ES'), align: 'left' },
+    { name: 'acciones', label: 'Desinscribir', field: 'acciones', align: 'center' },
 ];
 
 const columnsTalleres = [
@@ -367,6 +351,7 @@ const columnsTalleres = [
     { name: 'edad_minima', label: 'Edad Mín', field: 'edad_minima', align: 'center', sortable: true },
     { name: 'edad_maxima', label: 'Edad Máx', field: 'edad_maxima', align: 'center', sortable: true },
     { name: 'dias', label: 'Días', field: 'dias', align: 'left' },
+    { name: 'cupos', label: 'Inscriptops/cupo', field: 'cupos', align: 'center' },
     { name: 'descripcion', label: 'Descripción', field: 'descripcion', align: 'left', sortable: false },
 ];
 
@@ -589,6 +574,30 @@ function inscribir(tallerId) {
         .finally(() => {
             loading.value.inscribir = false;
         });
+}
+
+function desinscribir(inscripcion) {
+    $q.dialog({
+        title: 'Confirmar',
+        message: `¿Está seguro de eliminar la inscripción de ${inscripcion.cursante.nombre_apellido} en ${inscripcion.taller.nombre}?`,
+        cancel: true,
+        persistent: true
+    }).onOk(() => {
+        window.axios.delete(`/standard/inscripciones/${inscripcion.id}`)
+            .then(() => {
+                $q.notify({ type: 'positive', message: 'Inscripción eliminada exitosamente' });
+                cargarInscripcionesHoy();
+                cargarContadores();
+                cargarDetallesInscripciones();
+                // Si hay un cursante cargado, actualizar su información
+                if (cursante.value) {
+                    buscarCursante();
+                }
+            })
+            .catch(err => {
+                $q.notify({ type: 'negative', message: err.response?.data?.message || 'Error al eliminar inscripción' });
+            });
+    });
 }
 
 onMounted(() => {

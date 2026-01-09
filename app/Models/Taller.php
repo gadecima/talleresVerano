@@ -20,6 +20,7 @@ class Taller extends Model
         'descripcion',
         'cupos',
         'orientado',
+        'disponibilidad',
     ];
 
     public function dias()

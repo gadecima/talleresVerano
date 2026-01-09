@@ -106,6 +106,7 @@ Route::middleware(['auth', 'verified', 'role:standard'])->prefix('standard')->na
     Route::get('/inscripciones/hoy', [\App\Http\Controllers\Standard\InscripcionController::class, 'indexHoy'])->name('inscripciones.hoy');
     Route::get('/inscripciones/detalles-hoy', [StandardUserController::class, 'detallesInscripcionesHoy'])->name('inscripciones.detalles');
     Route::post('/inscripciones', [\App\Http\Controllers\Standard\InscripcionController::class, 'store'])->name('inscripciones.store');
+    Route::delete('/inscripciones/{id}', [\App\Http\Controllers\Standard\InscripcionController::class, 'destroy'])->name('inscripciones.destroy');
 
     // Rutas de exportación
     Route::get('/inscripciones/export/pdf', [TallerExportController::class, 'exportTalleresDiaPdf'])->name('inscripciones.export.pdf');
