@@ -3,7 +3,10 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\TallerController;
+use App\Http\Controllers\Admin\InscripcionController;
 use App\Http\Controllers\StandardUserController;
+use App\Http\Controllers\Standard\CursanteController;
 use App\Http\Controllers\ViewerController;
 use App\Http\Controllers\TallerExportController;
 use Illuminate\Foundation\Application;
@@ -66,13 +69,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     })->name('section2');
 
     // API para gestión de talleres
-    Route::get('/talleres', [\App\Http\Controllers\Admin\TallerController::class, 'index'])->name('talleres.index');
-    Route::post('/talleres', [\App\Http\Controllers\Admin\TallerController::class, 'store'])->name('talleres.store');
-    Route::put('/talleres/{taller}', [\App\Http\Controllers\Admin\TallerController::class, 'update'])->name('talleres.update');
-    Route::delete('/talleres/{taller}', [\App\Http\Controllers\Admin\TallerController::class, 'destroy'])->name('talleres.destroy');
+    Route::get('/talleres', [TallerController::class, 'index'])->name('talleres.index');
+    Route::post('/talleres', [TallerController::class, 'store'])->name('talleres.store');
+    Route::put('/talleres/{taller}', [TallerController::class, 'update'])->name('talleres.update');
+    Route::delete('/talleres/{taller}', [TallerController::class, 'destroy'])->name('talleres.destroy');
 
     // API para consultar inscripciones
-    Route::get('/inscripciones', [\App\Http\Controllers\Admin\InscripcionController::class, 'index'])->name('inscripciones.index');
+    Route::get('/inscripciones', [InscripcionController::class, 'index'])->name('inscripciones.index');
 });
 
 // Rutas API para gestión de usuarios (solo admin)
@@ -96,12 +99,12 @@ Route::middleware(['auth', 'verified', 'role:standard'])->prefix('standard')->na
     })->name('section2');
 
     // API para gestión de cursantes/talleres/inscripciones
-    Route::get('/cursantes', [\App\Http\Controllers\Standard\CursanteController::class, 'index'])->name('cursantes.index');
-    Route::post('/cursantes', [\App\Http\Controllers\Standard\CursanteController::class, 'store'])->name('cursantes.store');
-    Route::get('/cursantes/buscar/{dni}', [\App\Http\Controllers\Standard\CursanteController::class, 'buscarPorDni'])->name('cursantes.buscar');
-    Route::get('/cursantes/{cursante}', [\App\Http\Controllers\Standard\CursanteController::class, 'show'])->whereNumber('cursante')->name('cursantes.show');
-    Route::put('/cursantes/{cursante}', [\App\Http\Controllers\Standard\CursanteController::class, 'update'])->name('cursantes.update');
-    Route::delete('/cursantes/{cursante}', [\App\Http\Controllers\Standard\CursanteController::class, 'destroy'])->name('cursantes.destroy');
+    Route::get('/cursantes', [CursanteController::class, 'index'])->name('cursantes.index');
+    Route::post('/cursantes', [CursanteController::class, 'store'])->name('cursantes.store');
+    Route::get('/cursantes/buscar/{dni}', [CursanteController::class, 'buscarPorDni'])->name('cursantes.buscar');
+    Route::get('/cursantes/{cursante}', [CursanteController::class, 'show'])->whereNumber('cursante')->name('cursantes.show');
+    Route::put('/cursantes/{cursante}', [CursanteController::class, 'update'])->name('cursantes.update');
+    Route::delete('/cursantes/{cursante}', [CursanteController::class, 'destroy'])->name('cursantes.destroy');
     Route::get('/talleres/hoy', [\App\Http\Controllers\Standard\TallerController::class, 'disponibles'])->name('talleres.hoy');
     Route::get('/inscripciones/hoy', [\App\Http\Controllers\Standard\InscripcionController::class, 'indexHoy'])->name('inscripciones.hoy');
     Route::get('/inscripciones/detalles-hoy', [StandardUserController::class, 'detallesInscripcionesHoy'])->name('inscripciones.detalles');

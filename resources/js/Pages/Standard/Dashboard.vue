@@ -126,12 +126,23 @@
                             </q-list>
 
                             <div v-if="cursante" class="q-mt-lg">
-                                <div class="text-subtitle1">Inscripciones de hoy del cursante</div>
-                                <q-list bordered>
+                                <div class="text-subtitle1">Inscripciones hoy del cursante ({{ inscripcionesCursante.length }}/2)</div>
+                                <q-banner v-if="inscripcionesCursante.length === 0" class="q-my-md" dense>
+                                    El cursante no tiene inscripciones para hoy
+                                </q-banner>
+                                <q-list v-else bordered>
                                     <q-item v-for="ins in inscripcionesCursante" :key="ins.id">
                                         <q-item-section>
                                             <q-item-label>{{ ins.taller.nombre }}</q-item-label>
                                             <q-item-label caption>{{ formatDate(ins.fecha) }}</q-item-label>
+                                        </q-item-section>
+                                        <q-item-section side>
+                                            <q-btn
+                                                flat dense size="sm" icon="close" color="negative"
+                                                label="Desinscrbir"
+                                                title="Desinscribir del taller"
+                                                @click="desinscribirCursanteDeTaller(ins)"
+                                            />
                                         </q-item-section>
                                     </q-item>
                                 </q-list>
@@ -596,6 +607,34 @@ function desinscribir(inscripcion) {
             })
             .catch(err => {
                 $q.notify({ type: 'negative', message: err.response?.data?.message || 'Error al eliminar inscripción' });
+            });
+    });
+}
+
+function desinscribirCursanteDeTaller(inscripcion) {
+    $q.dialog({
+        title: 'Desinscribir',
+        message: `¿Desea desinscribir a ${cursante.value.nombre_apellido} del taller "${inscripcion.taller.nombre}"?`,
+        cancel: true,
+        persistent: true
+    }).onOk(() => {
+        window.axios.delete(`/standard/inscripciones/${inscripcion.id}`)
+            .then(() => {
+                $q.notify({
+                    type: 'positive',
+                    message: `Desinscripción realizada. El cursante puede inscribirse en otros talleres.`
+                });
+                // Recargar todos los datos necesarios
+                buscarCursante(); // Actualiza inscripciones del cursante
+                cargarInscripcionesHoy(); // Actualiza tabla general de inscripciones
+                cargarContadores(); // Actualiza contadores
+                cargarDetallesInscripciones(); // Actualiza detalles por taller
+            })
+            .catch(err => {
+                $q.notify({
+                    type: 'negative',
+                    message: err.response?.data?.message || 'Error al desinscribir del taller'
+                });
             });
     });
 }
