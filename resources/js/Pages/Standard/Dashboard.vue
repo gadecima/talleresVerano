@@ -139,8 +139,7 @@
                                         <q-item-section side>
                                             <q-btn
                                                 flat dense size="sm" icon="close" color="negative"
-                                                label="Desinscrbir"
-                                                title="Desinscribir del taller"
+                                                label="Desinscrbir" title="Desinscribir del taller"
                                                 @click="desinscribirCursanteDeTaller(ins)"
                                             />
                                         </q-item-section>
@@ -613,10 +612,8 @@ function desinscribir(inscripcion) {
 
 function desinscribirCursanteDeTaller(inscripcion) {
     $q.dialog({
-        title: 'Desinscribir',
+        title: 'Desinscribir', cancel: true, persistent: true,
         message: `¿Desea desinscribir a ${cursante.value.nombre_apellido} del taller "${inscripcion.taller.nombre}"?`,
-        cancel: true,
-        persistent: true
     }).onOk(() => {
         window.axios.delete(`/standard/inscripciones/${inscripcion.id}`)
             .then(() => {
