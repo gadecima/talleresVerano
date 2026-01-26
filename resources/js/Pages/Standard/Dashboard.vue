@@ -112,7 +112,7 @@
                                     <q-item-section>
                                         <q-item-label>{{ t.nombre }}</q-item-label>
                                         <q-item-label caption>
-                                            Edad: {{ t.edad_minima }} - {{ t.edad_maxima }} · Descripción: {{ t.descripcion }}
+                                            Edad: {{ t.edad_minima }} - {{ t.edad_maxima }} · Lugar: {{ t.espacio_fisico }}
                                             <br/>
                                             Cupos: {{ t.inscriptos_en_fecha ?? 0 }} / {{ t.cupos ?? 'N/A' }}
                                         </q-item-label>
