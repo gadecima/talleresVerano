@@ -32,7 +32,7 @@ class TallerController extends Controller
         $talleres = Taller::with(['dias' => function ($q) use ($diaNombre) {
             $q->where('dia_semana', $diaNombre);
         }])->get()->filter(function ($taller) use ($diaNombre) {
-            return $taller->dias->where('dia_semana', $diaNombre)->count() > 0;
+            return $taller->dias->where('dia_semana', $diaNombre)->count() > 0 && $taller->disponibilidad != 0;
         })->values()->map(function ($taller) use ($carbon) {
             // Anexar información de cupos del día
             $inscriptos = Inscripcion::where('taller_id', $taller->id)

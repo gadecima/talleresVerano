@@ -134,7 +134,7 @@
                                     <q-item v-for="ins in inscripcionesCursante" :key="ins.id">
                                         <q-item-section>
                                             <q-item-label>{{ ins.taller.nombre }}</q-item-label>
-                                            <q-item-label caption>{{ formatDate(ins.fecha) }}</q-item-label>
+                                            <q-item-label caption>{{ formatDate(ins.fecha) }} · Lugar: {{ ins.taller.espacio_fisico }} </q-item-label>
                                         </q-item-section>
                                         <q-item-section side>
                                             <q-btn
