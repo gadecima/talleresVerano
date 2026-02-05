@@ -9,6 +9,7 @@ use App\Http\Controllers\StandardUserController;
 use App\Http\Controllers\Standard\CursanteController;
 use App\Http\Controllers\ViewerController;
 use App\Http\Controllers\TallerExportController;
+use App\Http\Controllers\Admin\ReporteController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -67,6 +68,16 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::get('/section2', function () {
         return Inertia::render('Admin/Section2');
     })->name('section2');
+
+    // Rutas para reportes
+    Route::get('/reporte', [ReporteController::class, 'index'])->name('reporte');
+    Route::get('/api/reporte/contadores', [ReporteController::class, 'contadores'])->name('reporte.contadores');
+    Route::get('/api/reporte/cursantes-taller-mes', [ReporteController::class, 'cursantesPorTallerMes'])->name('reporte.cursantes-taller-mes');
+    Route::get('/api/reporte/cursantes-semana', [ReporteController::class, 'cursantesPorSemana'])->name('reporte.cursantes-semana');
+    Route::get('/api/reporte/asistencias-cursante', [ReporteController::class, 'asistenciasPorCursante'])->name('reporte.asistencias-cursante');
+    Route::get('/api/reporte/export/cursantes-taller-pdf', [ReporteController::class, 'exportCursantesTallerPdf'])->name('reporte.export.cursantes-taller-pdf');
+    Route::get('/api/reporte/export/cursantes-semanas-pdf', [ReporteController::class, 'exportCursantesSemanasPdf'])->name('reporte.export.cursantes-semanas-pdf');
+    Route::get('/api/reporte/export/asistencias-pdf', [ReporteController::class, 'exportAsistenciasPdf'])->name('reporte.export.asistencias-pdf');
 
     // API para gestión de talleres
     Route::get('/talleres', [TallerController::class, 'index'])->name('talleres.index');

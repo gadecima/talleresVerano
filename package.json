@@ -25,6 +25,9 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "@fortawesome/fontawesome-free": "^7.1.0"
+        "@fortawesome/fontawesome-free": "^7.1.0",
+        "chart.js": "^4.5.1",
+        "vue-chartjs": "^5.3.3",
+        "xlsx": "^0.18.5"
     }
 }

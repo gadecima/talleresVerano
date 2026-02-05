@@ -51,6 +51,15 @@
                     </q-item-section>
                     <q-item-section>Sección 2</q-item-section>
                 </q-item>
+
+                <q-separator class="q-my-md" />
+
+                <q-item clickable tag="a" href="/admin/reporte" active-class="bg-blue-1">
+                    <q-item-section avatar>
+                        <q-icon name="bar_chart" />
+                    </q-item-section>
+                    <q-item-section>Reportes</q-item-section>
+                </q-item>
             </q-list>
         </q-drawer>
 
